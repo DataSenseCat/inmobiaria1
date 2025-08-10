@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase/client'
+import { logError } from '@/lib/utils/errorUtils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -103,13 +104,8 @@ export default function AdminPage() {
       })
 
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error fetching dashboard data:', {
-        error: err,
-        message: errorMessage,
-        stack: err instanceof Error ? err.stack : undefined
-      })
-      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando información de ejemplo.`)
+      const errorLog = logError(err, 'AdminPage.fetchDashboardData')
+      setError(`Error al conectar con la base de datos: ${errorLog.message}. Mostrando información de ejemplo.`)
 
       // Load sample data on error
       const sampleProps = getSampleProperties()
