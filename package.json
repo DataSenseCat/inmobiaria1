@@ -11,6 +11,7 @@
     "seed": "tsx scripts/seed.ts"
   },
   "dependencies": {
+    "@fontsource/inter": "^5.0.16",
     "@builder.io/react": "^3.2.7",
     "@builder.io/dev-tools": "^1.0.7",
     "@hookform/resolvers": "^3.3.4",
