@@ -72,18 +72,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     local: 'Local Comercial'
   }[property.type]
 
-  const breadcrumbItems = [
-    { name: 'Inicio', url: process.env.NEXT_PUBLIC_APP_URL || 'https://inmobiliariacatamarca.com' },
-    { name: 'Propiedades', url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://inmobiliariacatamarca.com'}/propiedades` },
-    { name: property.title, url: `${process.env.NEXT_PUBLIC_APP_URL || 'https://inmobiliariacatamarca.com'}/propiedad/${property.id}` }
-  ]
-
   return (
-    <>
-      <PropertyStructuredData property={property} />
-      <BreadcrumbStructuredData items={breadcrumbItems} />
-      
-      <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background">
         {/* Image Gallery */}
         <section className="relative h-[50vh] md:h-[60vh] overflow-hidden">
           {property.images && property.images.length > 0 ? (
@@ -340,8 +330,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             </div>
           </div>
         </div>
-      </div>
-    </>
+    </div>
   )
 }
 
