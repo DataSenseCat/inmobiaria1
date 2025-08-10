@@ -1,8 +1,11 @@
-import { Link } from 'react-router-dom'
-import { MapPin, BedDouble, Bath, Maximize, Heart } from 'lucide-react'
-import { Property } from '../../lib/supabase/types'
-import { Card } from '../ui/card'
-import { Button } from '../ui/button'
+'use client'
+
+import Image from 'next/image'
+import Link from 'next/link'
+import { MapPin, BedDouble, Bath, Maximize, Car, Heart } from 'lucide-react'
+import { Property } from '@/lib/supabase/types'
+import { Card } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 
 interface PropertyCardProps {
   property: Property
@@ -38,10 +41,12 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
       {/* Image */}
       <div className="relative h-48 overflow-hidden">
         {property.images && property.images.length > 0 ? (
-          <img
+          <Image
             src={property.images[0].url}
             alt={property.images[0].alt || property.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            fill
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         ) : (
           <div className="w-full h-full bg-gray-200 flex items-center justify-center">
@@ -147,7 +152,7 @@ export default function PropertyCard({ property, className }: PropertyCardProps)
             size="sm" 
             className="flex-1 border-gray-300 text-gray-700 hover:bg-gray-50"
           >
-            <Link to={`/propiedad/${property.id}`}>
+            <Link href={`/propiedad/${property.id}`}>
               Ver detalles
             </Link>
           </Button>

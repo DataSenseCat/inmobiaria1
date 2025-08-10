@@ -1,11 +1,14 @@
+'use client'
+
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import Image from 'next/image'
+import Link from 'next/link'
 import { Search } from 'lucide-react'
 import { motion } from 'framer-motion'
-import { Button } from './button'
-import { Input } from './input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select'
-import { cn } from '../../lib/utils'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { cn } from '@/lib/utils'
 
 interface HeroProps {
   title?: string
@@ -30,7 +33,6 @@ export default function Hero({
   textAlign = 'center',
   className
 }: HeroProps) {
-  const navigate = useNavigate()
   const [searchFilters, setSearchFilters] = useState({
     operation: '',
     type: '',
@@ -49,7 +51,7 @@ export default function Hero({
     const queryString = params.toString()
     const searchUrl = queryString ? `/propiedades?${queryString}` : '/propiedades'
     
-    navigate(searchUrl)
+    window.location.href = searchUrl
   }
 
   const textAlignClass = {
@@ -68,10 +70,13 @@ export default function Hero({
     <section className={cn('relative overflow-hidden', height, className)}>
       {/* Background Image */}
       <div className="absolute inset-0">
-        <img
+        <Image
           src={backgroundImage}
           alt="Hero background"
-          className="w-full h-full object-cover"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
         />
         <div className="absolute inset-0 bg-black/40" />
       </div>
@@ -165,7 +170,7 @@ export default function Hero({
               className={textAlign === 'center' ? 'text-center' : ''}
             >
               <Button asChild size="lg" className="text-lg px-8 py-6 rounded-full">
-                <Link to={ctaLink}>
+                <Link href={ctaLink}>
                   {ctaText}
                 </Link>
               </Button>
