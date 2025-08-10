@@ -1,4 +1,5 @@
 import { createClient } from '@supabase/supabase-js'
+import { Database } from './types'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY
@@ -10,11 +11,50 @@ const fallbackKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const finalUrl = supabaseUrl || fallbackUrl
 const finalKey = supabaseKey || fallbackKey
 
+console.log('Supabase Configuration:', {
+  hasUrl: !!finalUrl,
+  hasKey: !!finalKey,
+  url: finalUrl?.substring(0, 30) + '...',
+  usingFallback: !supabaseUrl || !supabaseKey
+})
+
 if (!finalUrl || !finalKey) {
   console.error('Missing Supabase environment variables, using fallback configuration')
 }
 
-export const supabase = createClient(finalUrl, finalKey)
+export const supabase = createClient<Database>(finalUrl, finalKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10,
+    },
+  },
+})
+
+// Test connection function
+export const testConnection = async () => {
+  try {
+    console.log('Testing Supabase connection...')
+    const { data, error } = await supabase.from('properties').select('count').limit(1)
+    
+    if (error) {
+      console.error('Supabase connection test failed:', error)
+      return { success: false, error: error.message }
+    }
+    
+    console.log('Supabase connection test successful')
+    return { success: true, data }
+  } catch (err) {
+    console.error('Supabase connection test error:', err)
+    return { success: false, error: err instanceof Error ? err.message : String(err) }
+  }
+}
+
+// Initialize connection test
+testConnection()
 
 export { createClient }
 export default supabase
