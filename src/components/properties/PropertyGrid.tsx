@@ -119,9 +119,11 @@ export default function PropertyGrid({
       const { data, error: fetchError } = await query
 
       if (fetchError) {
-        throw fetchError
+        console.error('Supabase query error:', fetchError)
+        throw new Error(`Error en consulta: ${fetchError.message} (Code: ${fetchError.code})`)
       }
 
+      console.log('Properties fetched successfully:', data?.length || 0)
       setProperties(data || [])
       setHasMore((data?.length || 0) === pageSize)
     } catch (err) {
