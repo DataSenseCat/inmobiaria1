@@ -58,7 +58,10 @@ export default function FiltersBar({
   }, [filters, router])
 
   const updateFilter = (key: string, value: string) => {
-    setFilters(prev => ({ ...prev, [key]: value }))
+    // Convert placeholder values back to empty strings
+    const placeholderValues = ['all-operations', 'all-types', 'all-cities', 'no-limit', 'any-amount']
+    const actualValue = placeholderValues.includes(value) ? '' : value
+    setFilters(prev => ({ ...prev, [key]: actualValue }))
   }
 
   const clearFilters = () => {
