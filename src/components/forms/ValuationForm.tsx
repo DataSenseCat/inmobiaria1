@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { logError } from '@/lib/utils/errorUtils'
 import { CheckCircle, Loader2 } from 'lucide-react'
 
 const valuationSchema = z.object({
@@ -65,13 +66,8 @@ ${data.message ? `Mensaje: ${data.message}` : ''}`
         throw new Error('Error al enviar la solicitud')
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error)
-      console.error('Valuation form error:', {
-        error,
-        message: errorMessage,
-        stack: error instanceof Error ? error.stack : undefined
-      })
-      alert(`Hubo un error al enviar tu solicitud: ${errorMessage}. Por favor, inténtalo nuevamente.`)
+      const errorLog = logError(error, 'ValuationForm.onSubmit')
+      alert(`Hubo un error al enviar tu solicitud: ${errorLog.message}. Por favor, inténtalo nuevamente.`)
     } finally {
       setIsSubmitting(false)
     }
