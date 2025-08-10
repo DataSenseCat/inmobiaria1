@@ -1,24 +1,19 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Trash2, MessageCircle, Eye, Calendar } from 'lucide-react'
+import { Mail, Phone, MessageSquare, Eye } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { Lead, Property } from '@/lib/supabase/types'
-import Link from 'next/link'
 
 interface LeadsListProps {
   userRole: 'admin' | 'agent'
+  onStatsChange?: () => void
 }
 
-type LeadWithProperty = Lead & {
-  property: Property
-}
-
-export default function LeadsList({ userRole }: LeadsListProps) {
-  const [leads, setLeads] = useState<LeadWithProperty[]>([])
+export function LeadsList({ userRole, onStatsChange }: LeadsListProps) {
+  const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
@@ -32,7 +27,7 @@ export default function LeadsList({ userRole }: LeadsListProps) {
         .from('leads')
         .select(`
           *,
-          property:properties (
+          properties (
             id,
             title,
             operation,
@@ -52,46 +47,29 @@ export default function LeadsList({ userRole }: LeadsListProps) {
     }
   }
 
-  const deleteLead = async (leadId: string) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este lead?')) {
-      return
-    }
-
+  const markAsRead = async (leadId: string) => {
     try {
       const { error } = await supabase
         .from('leads')
-        .delete()
+        .update({ is_read: true })
         .eq('id', leadId)
 
       if (error) throw error
-      
-      setLeads(prev => prev.filter(lead => lead.id !== leadId))
+      fetchLeads()
+      onStatsChange?.()
     } catch (error) {
-      console.error('Error deleting lead:', error)
+      console.error('Error marking lead as read:', error)
     }
-  }
-
-  const handleWhatsApp = (phone: string, message: string) => {
-    const cleanPhone = phone.replace(/\D/g, '')
-    const encodedMessage = encodeURIComponent(`Hola! Te contacto por tu consulta: "${message}"`)
-    const url = `https://wa.me/549${cleanPhone}?text=${encodedMessage}`
-    window.open(url, '_blank')
   }
 
   if (loading) {
     return (
       <div className="space-y-4">
-        {Array.from({ length: 5 }).map((_, i) => (
+        {[...Array(3)].map((_, i) => (
           <Card key={i} className="animate-pulse">
             <CardContent className="p-6">
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <div className="h-4 bg-muted rounded w-1/3" />
-                  <div className="h-4 bg-muted rounded w-20" />
-                </div>
-                <div className="h-3 bg-muted rounded w-1/4" />
-                <div className="h-12 bg-muted rounded w-full" />
-              </div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </CardContent>
           </Card>
         ))}
@@ -104,101 +82,115 @@ export default function LeadsList({ userRole }: LeadsListProps) {
       {leads.length === 0 ? (
         <Card>
           <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No hay leads registrados</p>
+            <p className="text-gray-500">No hay leads disponibles</p>
           </CardContent>
         </Card>
       ) : (
         leads.map((lead) => (
-          <Card key={lead.id}>
+          <Card 
+            key={lead.id} 
+            className={`hover:shadow-lg transition-shadow ${!lead.is_read ? 'border-orange-200 bg-orange-50' : ''}`}
+          >
             <CardContent className="p-6">
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <h3 className="font-semibold text-lg">{lead.name}</h3>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Calendar className="h-4 w-4" />
-                      {new Date(lead.created_at).toLocaleString('es-AR')}
-                    </div>
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-lg font-semibold">{lead.name}</h3>
+                    {!lead.is_read && (
+                      <Badge className="bg-orange-500">Nuevo</Badge>
+                    )}
+                    <Badge variant="outline">
+                      {lead.kind === 'contacto' ? 'Contacto' : 'Tasación'}
+                    </Badge>
                   </div>
                   
-                  <div className="flex gap-2">
-                    {lead.phone && (
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => handleWhatsApp(lead.phone!, lead.message || '')}
-                        className="text-green-600 hover:text-green-700"
-                      >
-                        <MessageCircle className="h-4 w-4" />
-                      </Button>
+                  <div className="space-y-1 mb-3">
+                    {lead.email && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Mail className="h-4 w-4" />
+                        <a href={`mailto:${lead.email}`} className="hover:text-blue-600">
+                          {lead.email}
+                        </a>
+                      </div>
                     )}
-                    
-                    <Button variant="outline" size="icon" asChild>
-                      <Link href={`/propiedad/${lead.property.id}`}>
-                        <Eye className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={() => deleteLead(lead.id)}
-                      className="text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {lead.phone && (
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <Phone className="h-4 w-4" />
+                        <a href={`tel:${lead.phone}`} className="hover:text-blue-600">
+                          {lead.phone}
+                        </a>
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                {/* Contact Info */}
-                <div className="flex flex-wrap gap-4 text-sm">
-                  {lead.phone && (
-                    <div>
-                      <span className="font-medium">Teléfono:</span> {lead.phone}
-                    </div>
-                  )}
-                  {lead.email && (
-                    <div>
-                      <span className="font-medium">Email:</span> {lead.email}
-                    </div>
-                  )}
-                </div>
-
-                {/* Property Info */}
-                <div className="bg-muted/50 rounded-lg p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h4 className="font-medium">{lead.property.title}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {lead.property.city}
+                  
+                  {lead.properties && (
+                    <div className="mb-3">
+                      <p className="text-sm font-medium text-gray-700">Propiedad de interés:</p>
+                      <p className="text-sm text-gray-600">
+                        {lead.properties.title} - {lead.properties.city}
+                        {lead.properties.price_usd && (
+                          <span className="ml-2 text-green-600 font-semibold">
+                            ${lead.properties.price_usd.toLocaleString()} USD
+                          </span>
+                        )}
                       </p>
                     </div>
-                    
-                    <div className="flex gap-2">
-                      <Badge variant={lead.property.operation === 'venta' ? 'default' : 'secondary'}>
-                        {lead.property.operation === 'venta' ? 'Venta' : 'Alquiler'}
-                      </Badge>
-                      
-                      <Badge variant="outline">
-                        {lead.property.type === 'casa' ? 'Casa' :
-                         lead.property.type === 'departamento' ? 'Departamento' :
-                         lead.property.type === 'ph' ? 'PH' :
-                         lead.property.type === 'lote' ? 'Lote' : 'Local'}
-                      </Badge>
-                    </div>
+                  )}
+                  
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <p className="text-sm text-gray-700">{lead.message}</p>
                   </div>
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    {new Date(lead.created_at).toLocaleDateString('es-AR', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
+                  </p>
                 </div>
-
-                {/* Message */}
-                {lead.message && (
-                  <div>
-                    <h4 className="font-medium mb-2">Mensaje:</h4>
-                    <p className="text-sm text-muted-foreground bg-muted/30 p-3 rounded-lg">
-                      {lead.message}
-                    </p>
-                  </div>
-                )}
+                
+                <div className="flex items-center gap-2">
+                  {!lead.is_read && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => markAsRead(lead.id)}
+                    >
+                      Marcar como leído
+                    </Button>
+                  )}
+                  
+                  {lead.properties && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <a href={`/propiedad/${lead.properties.id}`} target="_blank">
+                        <Eye className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                  
+                  {lead.phone && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      asChild
+                    >
+                      <a 
+                        href={`https://wa.me/${lead.phone.replace(/\D/g, '')}?text=Hola ${lead.name}, te contacto desde Inmobiliaria Catamarca`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
