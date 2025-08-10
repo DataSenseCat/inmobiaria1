@@ -153,12 +153,12 @@ export default function PropertyGrid({
   }
 
   return (
-    <div className={cn('space-y-6', className)}>
+    <div className={cn('', className)}>
       {/* Title */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold mb-2">{title}</h2>
+      <div className="mb-8">
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">{title}</h2>
         {properties.length > 0 && (
-          <p className="text-muted-foreground">
+          <p className="text-gray-600">
             {properties.length} {properties.length === 1 ? 'propiedad encontrada' : 'propiedades encontradas'}
           </p>
         )}
@@ -171,7 +171,7 @@ export default function PropertyGrid({
           <h3 className="text-2xl font-semibold mb-4 text-blue-600">Base de Datos No Configurada</h3>
 
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 text-left">
-            <h4 className="font-semibold text-blue-800 mb-3">✨ ¡Tu aplicación está lista!</h4>
+            <h4 className="font-semibold text-blue-800 mb-3">�� ¡Tu aplicación está lista!</h4>
             <p className="text-blue-700 mb-4">
               Solo necesitas crear las tablas en Supabase para ver las propiedades.
             </p>
