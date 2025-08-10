@@ -23,7 +23,7 @@ export default function Header() {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <Phone className="h-4 w-4 text-gray-600" />
-                <span className="text-gray-700">{process.env.NEXT_PUBLIC_CONTACT_PHONE || '+54 383 456-7890'}</span>
+                <span className="text-gray-700">{process.env.NEXT_PUBLIC_CONTACT_PHONE || '+54 383 490-1545'}</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Mail className="h-4 w-4 text-gray-600" />
