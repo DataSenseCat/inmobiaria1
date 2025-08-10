@@ -615,6 +615,14 @@ export default function AdminPage() {
                     <Mail className="w-4 h-4 mr-2" />
                     Configurar Email Marketing
                   </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start"
+                    onClick={() => window.open('/debug', '_blank')}
+                  >
+                    <AlertCircle className="w-4 h-4 mr-2" />
+                    Debug Base de Datos
+                  </Button>
                 </CardContent>
               </Card>
             </div>
