@@ -1,4 +1,4 @@
-import { ValuationForm } from '@/components/forms/ValuationForm'
+import ValuationForm from '@/components/forms/ValuationForm'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { 
