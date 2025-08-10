@@ -25,6 +25,7 @@ import AdminPage from './pages/admin/AdminPage'
 import ConfigAdminPage from './pages/setup/ConfigAdminPage'
 import ConfigDbPage from './pages/setup/ConfigDbPage'
 import DebugAdminPage from './pages/setup/DebugAdminPage'
+import DebugPage from './pages/DebugPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
