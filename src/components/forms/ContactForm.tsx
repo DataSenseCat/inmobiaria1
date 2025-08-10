@@ -67,7 +67,7 @@ export default function ContactForm() {
         throw new Error('Error al enviar el mensaje')
       }
     } catch (error) {
-      const errorLog = logError(error, 'ContactForm.onSubmit')
+      logError(error, 'ContactForm.onSubmit')
       
       // Fallback: Open email client
       const emailBody = `
