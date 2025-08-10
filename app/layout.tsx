@@ -28,7 +28,6 @@ export default function RootLayout({
         <BuilderProvider>
           {children}
         </BuilderProvider>
-        <DevServerControl />
       </body>
     </html>
   )
