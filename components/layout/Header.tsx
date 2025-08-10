@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Search, Phone, Mail, MapPin, ChevronDown, Menu, X, User, Heart } from 'lucide-react'
+import { Search, Phone, Mail, MapPin, ChevronDown, Menu, X, User, Heart, Shield } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
@@ -10,7 +10,9 @@ import { useSupabase } from '@/lib/hooks/useSupabase'
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [propertiesDropdownOpen, setPropertiesDropdownOpen] = useState(false)
-  const { user, signOut } = useSupabase()
+  const { user, profile, signOut } = useSupabase()
+
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'agent'
 
   return (
     <>
