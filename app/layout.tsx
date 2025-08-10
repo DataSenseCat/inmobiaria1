@@ -1,5 +1,4 @@
 import { Inter } from 'next/font/google'
-import { BuilderProvider } from '@/components/builder/BuilderProvider'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
