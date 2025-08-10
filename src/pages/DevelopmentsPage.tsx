@@ -65,8 +65,13 @@ export default function DevelopmentsPage() {
 
       setDevelopments(data || [])
     } catch (err) {
-      console.error('Error fetching developments:', err)
-      setError('Error al cargar los emprendimientos. Mostrando datos de ejemplo.')
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      console.error('Error fetching developments:', {
+        error: err,
+        message: errorMessage,
+        stack: err instanceof Error ? err.stack : undefined
+      })
+      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando datos de ejemplo.`)
       setDevelopments(getSampleDevelopments())
     } finally {
       setLoading(false)
