@@ -10,7 +10,6 @@ import PropertyMap from '@/components/properties/PropertyMap'
 import ContactForm from '@/components/properties/ContactForm'
 import { createClient } from '@/lib/supabase/client'
 import { formatPrice, formatArea, getWhatsAppUrl } from '@/lib/utils'
-import { PropertyStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData'
 
 interface PropertyPageProps {
   params: {
