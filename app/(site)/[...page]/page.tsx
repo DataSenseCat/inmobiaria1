@@ -20,16 +20,24 @@ interface PageProps {
 
 export default async function Page({ params, searchParams }: PageProps) {
   const urlPath = '/' + (params?.page?.join('/') || '')
-  
-  // Get the page content from Builder
-  const page = await builder
-    .get('page', {
-      userAttributes: {
-        urlPath,
-      },
-      prerender: false,
-    })
-    .toPromise()
+
+  // Only try to get content from Builder if API key is configured
+  let page = null
+  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+  if (apiKey && apiKey !== 'REEMPLAZAR_CON_TU_PUBLIC_API_KEY') {
+    try {
+      page = await builder
+        .get('page', {
+          userAttributes: {
+            urlPath,
+          },
+          prerender: false,
+        })
+        .toPromise()
+    } catch (error) {
+      console.warn('Builder.io error:', error)
+    }
+  }
 
   // If Builder has content for this URL, render it
   if (page) {
