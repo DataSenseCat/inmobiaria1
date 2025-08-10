@@ -98,6 +98,11 @@ export default function PropertyGrid({
       
     } catch (error) {
       console.error('Error fetching properties:', error)
+      console.error('Error details:', JSON.stringify(error, null, 2))
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
     } finally {
       setLoading(false)
       setLoadingMore(false)
