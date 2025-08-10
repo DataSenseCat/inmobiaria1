@@ -322,6 +322,9 @@ export function registerBuilderComponents() {
 
 // Auto-register components when module loads
 if (typeof window !== 'undefined') {
-  // Wait for Builder to be available
-  setTimeout(registerBuilderComponents, 100)
+  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+  if (apiKey && apiKey !== 'REEMPLAZAR_CON_TU_PUBLIC_API_KEY') {
+    // Wait for Builder to be available
+    setTimeout(registerBuilderComponents, 100)
+  }
 }
