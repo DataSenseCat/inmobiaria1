@@ -1,6 +1,7 @@
 import HeroSection from '../components/layout/HeroSection'
 import PropertyGrid from '../components/properties/PropertyGrid'
 import SimpleConnectionTest from '../components/SimpleConnectionTest'
+import PropertyGridTest from '../components/PropertyGridTest'
 import { Suspense } from 'react'
 
 export default function HomePage() {
@@ -22,11 +23,8 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Connection Test - Temporarily disabled
-          <div className="mb-8">
-            <SimpleConnectionTest />
-          </div>
-          */}
+          {/* Debug tests */}
+          <PropertyGridTest />
 
           <Suspense fallback={
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
