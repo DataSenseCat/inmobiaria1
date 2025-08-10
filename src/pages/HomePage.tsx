@@ -1,5 +1,6 @@
 import HeroSection from '../components/layout/HeroSection'
 import PropertyGrid from '../components/properties/PropertyGrid'
+import SimpleConnectionTest from '../components/SimpleConnectionTest'
 import { Suspense } from 'react'
 
 export default function HomePage() {
