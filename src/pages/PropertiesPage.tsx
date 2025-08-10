@@ -1,11 +1,10 @@
 import { Suspense } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import PropertyGrid from '../components/properties/PropertyGrid'
-import FiltersBar from '../components/properties/FiltersBar'
 
 export default function PropertiesPage() {
-  const searchParams = useSearchParams()
-  
+  const [searchParams] = useSearchParams()
+
   const filters = {
     operation: searchParams.get('operation') as 'venta' | 'alquiler' | 'temporal' | undefined,
     type: searchParams.get('type') as 'casa' | 'departamento' | 'ph' | 'lote' | 'local' | undefined,
@@ -36,9 +35,9 @@ export default function PropertiesPage() {
       {/* Filters */}
       <div className="bg-white border-b">
         <div className="container mx-auto px-4 py-6">
-          <Suspense fallback={<div>Cargando filtros...</div>}>
-            <FiltersBar initialFilters={filters} />
-          </Suspense>
+          <div className="text-gray-600">
+            Filtros en desarrollo...
+          </div>
         </div>
       </div>
 
