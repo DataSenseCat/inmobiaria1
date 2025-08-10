@@ -227,9 +227,38 @@ export default function PropertyGrid({
           <div className="text-center py-12">
             <div className="text-6xl mb-4">🏠</div>
             <h3 className="text-xl font-semibold mb-2">No hay propiedades disponibles</h3>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground mb-6">
               No se encontraron propiedades que coincidan con los filtros seleccionados.
             </p>
+
+            {/* Preview de propiedades cuando la DB no está configurada */}
+            <div className="mt-8">
+              <h4 className="text-lg font-semibold mb-4 text-gray-600">
+                Vista previa de propiedades de ejemplo:
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+                {[
+                  { title: "Casa en Barrio Norte", price: "USD 120,000", type: "Casa", operation: "Venta" },
+                  { title: "Departamento Céntrico", price: "ARS 180,000", type: "Departamento", operation: "Alquiler" },
+                  { title: "PH en Barrio Jardín", price: "USD 85,000", type: "PH", operation: "Venta" }
+                ].map((prop, idx) => (
+                  <div key={idx} className="bg-white rounded-lg shadow-md p-4 opacity-60">
+                    <div className="h-32 bg-gray-200 rounded mb-3 flex items-center justify-center">
+                      <span className="text-3xl">🏠</span>
+                    </div>
+                    <h5 className="font-semibold text-sm mb-2">{prop.title}</h5>
+                    <p className="text-blue-600 font-bold text-sm mb-2">{prop.price}</p>
+                    <div className="flex justify-between text-xs">
+                      <span className="bg-gray-100 px-2 py-1 rounded">{prop.type}</span>
+                      <span className="text-gray-500">{prop.operation}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-gray-500 mt-4">
+                * Estas propiedades aparecerán reales después de configurar la base de datos
+              </p>
+            </div>
           </div>
         ) : (
           <>
