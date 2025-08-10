@@ -57,11 +57,13 @@ CREATE TABLE images (
 -- Create leads table
 CREATE TABLE leads (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    kind TEXT CHECK (kind IN ('contacto', 'tasacion')) NOT NULL,
+    property_id UUID NULL REFERENCES properties(id) ON DELETE SET NULL,
     name TEXT NOT NULL,
     phone TEXT,
     email TEXT,
     message TEXT,
+    is_read BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
@@ -69,7 +71,26 @@ CREATE TABLE leads (
 CREATE TABLE favorites (
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     property_id UUID NOT NULL REFERENCES properties(id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
     PRIMARY KEY (user_id, property_id)
+);
+
+-- Create developments table
+CREATE TABLE developments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'planificacion',
+    address TEXT,
+    city TEXT,
+    province TEXT,
+    description TEXT,
+    hero_url TEXT,
+    amenities TEXT[],
+    progress INTEGER DEFAULT 0 CHECK (progress >= 0 AND progress <= 100),
+    coordinates GEOGRAPHY(POINT, 4326),
+    agent_id UUID REFERENCES agents(id) ON DELETE SET NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
 -- Create indexes for better performance
@@ -84,6 +105,12 @@ CREATE INDEX idx_properties_coordinates ON properties USING GIST(coordinates);
 CREATE INDEX idx_images_property_id ON images(property_id);
 CREATE INDEX idx_leads_property_id ON leads(property_id);
 CREATE INDEX idx_leads_created_at ON leads(created_at);
+CREATE INDEX idx_leads_kind ON leads(kind);
+CREATE INDEX idx_leads_is_read ON leads(is_read);
+CREATE INDEX idx_developments_status ON developments(status);
+CREATE INDEX idx_developments_city ON developments(city);
+CREATE INDEX idx_developments_created_at ON developments(created_at);
+CREATE INDEX idx_developments_coordinates ON developments USING GIST(coordinates);
 
 -- Create trigger function for updated_at
 CREATE OR REPLACE FUNCTION update_updated_at_column()
@@ -97,6 +124,12 @@ $$ LANGUAGE plpgsql;
 -- Create trigger for properties updated_at
 CREATE TRIGGER update_properties_updated_at
     BEFORE UPDATE ON properties
+    FOR EACH ROW
+    EXECUTE FUNCTION update_updated_at_column();
+
+-- Create trigger for developments updated_at
+CREATE TRIGGER update_developments_updated_at
+    BEFORE UPDATE ON developments
     FOR EACH ROW
     EXECUTE FUNCTION update_updated_at_column();
 
@@ -122,6 +155,7 @@ ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 ALTER TABLE images ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 ALTER TABLE favorites ENABLE ROW LEVEL SECURITY;
+ALTER TABLE developments ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies for profiles
 CREATE POLICY "Users can view own profile" ON profiles
@@ -238,6 +272,31 @@ CREATE POLICY "Admins can delete leads" ON leads
 -- RLS Policies for favorites
 CREATE POLICY "Users can manage own favorites" ON favorites
     FOR ALL USING (auth.uid() = user_id);
+
+-- RLS Policies for developments
+CREATE POLICY "Anyone can view developments" ON developments
+    FOR SELECT USING (true);
+
+CREATE POLICY "Admins can manage all developments" ON developments
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM profiles
+            WHERE user_id = auth.uid() AND role = 'admin'
+        )
+    );
+
+CREATE POLICY "Agents can manage own developments" ON developments
+    FOR ALL USING (
+        EXISTS (
+            SELECT 1 FROM profiles p
+            JOIN agents a ON a.email = (
+                SELECT email FROM auth.users WHERE id = p.user_id
+            )
+            WHERE p.user_id = auth.uid()
+            AND p.role = 'agent'
+            AND a.id = agent_id
+        )
+    );
 
 -- Create Storage bucket for property images
 INSERT INTO storage.buckets (id, name, public) VALUES ('property-images', 'property-images', true);
@@ -368,10 +427,55 @@ INSERT INTO properties (id, title, operation, type, price_usd, price_ars, addres
 );
 
 -- Insert seed data for images
-INSERT INTO images (property_id, url, alt) VALUES 
+INSERT INTO images (property_id, url, alt) VALUES
 ('550e8400-e29b-41d4-a716-446655440101', 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?w=800', 'Frente de la casa'),
 ('550e8400-e29b-41d4-a716-446655440101', 'https://images.unsplash.com/photo-1583608205776-bfd35f0d9f83?w=800', 'Living comedor'),
 ('550e8400-e29b-41d4-a716-446655440102', 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=800', 'Vista del departamento'),
 ('550e8400-e29b-41d4-a716-446655440103', 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800', 'Exterior del PH'),
 ('550e8400-e29b-41d4-a716-446655440104', 'https://images.unsplash.com/photo-1513584684374-8bab748fbf90?w=800', 'Vista del lote'),
 ('550e8400-e29b-41d4-a716-446655440105', 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800', 'Interior del local');
+
+-- Insert seed data for developments
+INSERT INTO developments (id, title, status, address, city, province, description, hero_url, amenities, progress, coordinates, agent_id) VALUES
+(
+    '550e8400-e29b-41d4-a716-446655440201',
+    'Torres del Valle - Complejo Residencial',
+    'construccion',
+    'Av. Libertador 2000',
+    'San Fernando del Valle de Catamarca',
+    'Catamarca',
+    'Moderno complejo residencial con amenities de primer nivel. Departamentos de 1, 2 y 3 dormitorios con vista panorámica a las montañas.',
+    'https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=800',
+    ARRAY['Pileta', 'Gimnasio', 'SUM', 'Seguridad 24hs', 'Cocheras'],
+    65,
+    ST_GeogFromText('POINT(-65.7801 -28.4588)'),
+    '550e8400-e29b-41d4-a716-446655440001'
+),
+(
+    '550e8400-e29b-41d4-a716-446655440202',
+    'Barrio Cerrado Los Molles',
+    'planificacion',
+    'Ruta 33 Km 8',
+    'San Fernando del Valle de Catamarca',
+    'Catamarca',
+    'Exclusivo barrio cerrado con lotes de 600m² a 1200m². Entorno natural privilegiado con vista a las sierras.',
+    'https://images.unsplash.com/photo-1448630360428-65456885c650?w=800',
+    ARRAY['Clubhouse', 'Cancha de tenis', 'Área recreativa', 'Seguridad privada', 'Arbolado nativo'],
+    15,
+    ST_GeogFromText('POINT(-65.7912 -28.4234)'),
+    '550e8400-e29b-41d4-a716-446655440002'
+),
+(
+    '550e8400-e29b-41d4-a716-446655440203',
+    'Centro Comercial Plaza Norte',
+    'finalizado',
+    'Av. Belgrano y Córdoba',
+    'San Fernando del Valle de Catamarca',
+    'Catamarca',
+    'Moderno centro comercial con locales de diferentes tamaños. Excelente oportunidad de inversión en zona de alto tránsito.',
+    'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=800',
+    ARRAY['Estacionamiento cubierto', 'Patio de comidas', 'Aire acondicionado central', 'Escaleras mecánicas'],
+    100,
+    ST_GeogFromText('POINT(-65.7876 -28.4695)'),
+    '550e8400-e29b-41d4-a716-446655440001'
+);
