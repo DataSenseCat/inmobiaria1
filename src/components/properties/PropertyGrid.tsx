@@ -124,6 +124,15 @@ export default function PropertyGrid({
 
       if (fetchError) {
         console.error('Supabase query error:', fetchError)
+
+        // Check if it's a table not found error
+        if (fetchError.code === 'PGRST116' || fetchError.message.includes('relation') || fetchError.message.includes('does not exist')) {
+          console.warn('Database tables not found, using sample data')
+          setProperties(getSampleProperties())
+          setError('Tablas de la base de datos no encontradas. Mostrando propiedades de ejemplo.')
+          return
+        }
+
         throw new Error(`Error en consulta: ${fetchError.message} (Code: ${fetchError.code})`)
       }
 
