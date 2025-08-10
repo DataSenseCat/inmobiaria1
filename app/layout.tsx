@@ -24,6 +24,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es-AR">
+      <head>
+        <OrganizationStructuredData />
+      </head>
       <body className={inter.className}>
         <BuilderProvider>
           {children}
