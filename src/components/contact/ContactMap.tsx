@@ -13,7 +13,7 @@ Icon.Default.mergeOptions({
 
 export default function ContactMap() {
   const [isClient, setIsClient] = useState(false)
-  const [mapError, setMapError] = useState(false)
+  const [mapError] = useState(false)
 
   // Company location: Catamarca, Argentina (approximate coordinates)
   const companyLocation = {
@@ -26,9 +26,6 @@ export default function ContactMap() {
     setIsClient(true)
   }, [])
 
-  const handleMapError = () => {
-    setMapError(true)
-  }
 
   // Fallback map with static image and directions link
   const StaticMap = () => (
@@ -100,7 +97,6 @@ export default function ContactMap() {
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            onError={handleMapError}
           />
           <Marker position={[companyLocation.lat, companyLocation.lng]}>
             <Popup>

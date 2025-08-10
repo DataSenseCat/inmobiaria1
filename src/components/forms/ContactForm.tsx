@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { logError } from '@/lib/utils/errorUtils'
 import { CheckCircle, Loader2, Send } from 'lucide-react'
 
 const contactSchema = z.object({
@@ -66,7 +67,7 @@ export default function ContactForm() {
         throw new Error('Error al enviar el mensaje')
       }
     } catch (error) {
-      console.error('Error:', error)
+      logError(error, 'ContactForm.onSubmit')
       
       // Fallback: Open email client
       const emailBody = `

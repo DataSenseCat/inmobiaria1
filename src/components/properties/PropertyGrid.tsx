@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { supabase, testConnection } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
 import { Property } from '@/lib/supabase/types'
+import { logError, handleSupabaseError } from '@/lib/utils/errorUtils'
 import { Loader2, AlertCircle } from 'lucide-react'
 
 interface PropertyGridProps {
@@ -31,9 +32,12 @@ export default function PropertyGrid({
   const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
 
+  // Use JSON.stringify to prevent infinite re-renders from object recreation
+  const filtersString = JSON.stringify(filters)
+
   useEffect(() => {
     fetchProperties()
-  }, [filters, showFeatured, pageSize])
+  }, [filtersString, showFeatured, pageSize])
 
   const fetchProperties = async () => {
     try {
@@ -54,7 +58,7 @@ export default function PropertyGrid({
         .from('properties')
         .select(`
           *,
-          property_images (
+          images (
             id,
             url,
             alt,
@@ -123,7 +127,7 @@ export default function PropertyGrid({
       const { data, error: fetchError } = await query
 
       if (fetchError) {
-        console.error('Supabase query error:', fetchError)
+        const errorMessage = handleSupabaseError(fetchError, 'Error en consulta de propiedades')
 
         // Check if it's a table not found error
         if (fetchError.code === 'PGRST116' || fetchError.message.includes('relation') || fetchError.message.includes('does not exist')) {
@@ -133,20 +137,23 @@ export default function PropertyGrid({
           return
         }
 
-        throw new Error(`Error en consulta: ${fetchError.message} (Code: ${fetchError.code})`)
+        throw new Error(errorMessage)
       }
 
-      console.log('Properties fetched successfully:', data?.length || 0)
-      setProperties(data || [])
+      // Transform database data to match Property interface
+      const transformedProperties = (data || []).map((property: any) => ({
+        ...property,
+        price_usd: property.price_usd ? Number(property.price_usd) : undefined,
+        price_ars: property.price_ars ? Number(property.price_ars) : undefined,
+        // Ensure images is always an array (it should be from the join)
+        images: Array.isArray(property.images) ? property.images : (property.images ? [property.images] : [])
+      }))
+
+      setProperties(transformedProperties)
       setHasMore((data?.length || 0) === pageSize)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error fetching properties:', {
-        error: err,
-        message: errorMessage,
-        stack: err instanceof Error ? err.stack : undefined
-      })
-      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando datos de ejemplo.`)
+      const errorLog = logError(err, 'PropertyGrid.fetchProperties')
+      setError(`Error al conectar con la base de datos: ${errorLog.message}. Mostrando datos de ejemplo.`)
 
       // Show sample data if there's an error
       setProperties(getSampleProperties())

@@ -26,6 +26,8 @@ import ConfigAdminPage from './pages/setup/ConfigAdminPage'
 import ConfigDbPage from './pages/setup/ConfigDbPage'
 import DebugAdminPage from './pages/setup/DebugAdminPage'
 import DebugPage from './pages/DebugPage'
+import TestConnectionPage from './pages/TestConnectionPage'
+import DebugConnectionPage from './pages/DebugConnectionPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
@@ -39,6 +41,8 @@ function App() {
         <Route path="/configurar-db" element={<ConfigDbPage />} />
         <Route path="/debug-admin" element={<DebugAdminPage />} />
         <Route path="/debug" element={<DebugPage />} />
+        <Route path="/test-connection" element={<TestConnectionPage />} />
+        <Route path="/debug-connection" element={<DebugConnectionPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />
