@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { MapPin, BedDouble, Bath, Maximize, Heart } from 'lucide-react'
-import { Property } from '../lib/supabase/types'
+import { Property } from '../../lib/supabase/types'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 

@@ -13,7 +13,10 @@ export default function PropertyDetailsPage() {
   const navigate = useNavigate()
   const [property, setProperty] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL || 'https://xtcdvnzcryshjwwggfrk.supabase.co',
+    import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0Y2R2bnpjcnlzaGp3d2dnZnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3OTE2NzAsImV4cCI6MjA3MDM2NzY3MH0.u-cwoiuT8xSg4fkFLuHw_GTmA9DI5xLPDhpHiGDS8MI'
+  )
 
   useEffect(() => {
     async function fetchProperty() {
