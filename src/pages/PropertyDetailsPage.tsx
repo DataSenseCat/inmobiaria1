@@ -13,7 +13,10 @@ export default function PropertyDetailsPage() {
   const navigate = useNavigate()
   const [property, setProperty] = useState<any>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL || 'https://xtcdvnzcryshjwwggfrk.supabase.co',
+    import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0Y2R2bnpjcnlzaGp3d2dnZnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3OTE2NzAsImV4cCI6MjA3MDM2NzY3MH0.u-cwoiuT8xSg4fkFLuHw_GTmA9DI5xLPDhpHiGDS8MI'
+  )
 
   useEffect(() => {
     async function fetchProperty() {
@@ -69,13 +72,14 @@ export default function PropertyDetailsPage() {
   }
 
   const operationLabel = property.operation === 'venta' ? 'Venta' : 'Alquiler'
-  const typeLabel = {
+  const typeLabelMap = {
     casa: 'Casa',
     departamento: 'Departamento',
     ph: 'PH',
     lote: 'Lote',
     local: 'Local Comercial'
-  }[property.type]
+  }
+  const typeLabel = typeLabelMap[property.type as keyof typeof typeLabelMap]
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,7 +99,7 @@ export default function PropertyDetailsPage() {
               {/* Side Images */}
               {property.images.length > 1 && (
                 <div className="hidden md:flex flex-col gap-2">
-                  {property.images.slice(1, 3).map((image, index) => (
+                  {property.images.slice(1, 3).map((image: any, index: number) => (
                     <div key={image.id} className="relative flex-1">
                       <img
                         src={image.url}

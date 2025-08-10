@@ -1,10 +1,8 @@
-'use client'
-
-import Link from 'next/link'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Button } from './button'
+import { Card, CardContent } from './card'
+import { cn } from '../../lib/utils'
 
 interface CalloutProps {
   title?: string
@@ -138,7 +136,7 @@ export default function Callout({
                     (variant === 'secondary' || variant === 'accent') && 'bg-white text-gray-900 hover:bg-gray-100'
                   )}
                 >
-                  <Link href={buttonLink}>
+                  <Link to={buttonLink}>
                     {buttonText}
                   </Link>
                 </Button>

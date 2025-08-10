@@ -53,7 +53,7 @@ export default function FiltersBar({
     const currentPath = window.location.pathname
     
     navigate(queryString ? `${currentPath}?${queryString}` : currentPath, { replace: true })
-  }, [filters, router])
+  }, [filters, navigate])
 
   const updateFilter = (key: string, value: string) => {
     // Convert placeholder values back to empty strings
