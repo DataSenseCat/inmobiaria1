@@ -43,7 +43,6 @@ export default function PropertyGrid({
     try {
       setLoading(true)
       setError(null)
-      console.log('🔍 PropertyGrid fetchProperties called with:', { showFeatured, pageSize, filters })
 
       // Test connection first
       const connectionTest = await testConnection()
@@ -125,9 +124,7 @@ export default function PropertyGrid({
       const to = from + pageSize - 1
       query = query.range(from, to)
 
-      console.log('🔍 About to execute Supabase query for properties...')
       const { data, error: fetchError } = await query
-      console.log('🔍 Query result:', { data: data?.length, error: fetchError, rawData: data?.[0] })
 
       if (fetchError) {
         const errorMessage = handleSupabaseError(fetchError, 'Error en consulta de propiedades')
@@ -143,8 +140,6 @@ export default function PropertyGrid({
         throw new Error(errorMessage)
       }
 
-      console.log('Properties fetched successfully:', data?.length || 0)
-
       // Transform database data to match Property interface
       const transformedProperties = (data || []).map((property: any) => ({
         ...property,
@@ -154,7 +149,6 @@ export default function PropertyGrid({
         images: Array.isArray(property.images) ? property.images : (property.images ? [property.images] : [])
       }))
 
-      console.log('🔍 Transformed properties:', transformedProperties[0])
       setProperties(transformedProperties)
       setHasMore((data?.length || 0) === pageSize)
     } catch (err) {
