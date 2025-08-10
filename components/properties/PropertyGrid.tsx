@@ -47,6 +47,8 @@ export default function PropertyGrid({
 
   const fetchProperties = async (currentPage: number, reset = false) => {
     try {
+      setError(null) // Clear any previous errors
+
       if (reset) {
         setLoading(true)
       } else {
