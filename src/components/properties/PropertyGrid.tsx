@@ -40,6 +40,7 @@ export default function PropertyGrid({
     try {
       setLoading(true)
       setError(null)
+      console.log('🔍 PropertyGrid fetchProperties called with:', { showFeatured, pageSize, filters })
 
       // Test connection first
       const connectionTest = await testConnection()
@@ -121,7 +122,9 @@ export default function PropertyGrid({
       const to = from + pageSize - 1
       query = query.range(from, to)
 
+      console.log('🔍 About to execute Supabase query for properties...')
       const { data, error: fetchError } = await query
+      console.log('🔍 Query result:', { data: data?.length, error: fetchError })
 
       if (fetchError) {
         const errorMessage = handleSupabaseError(fetchError, 'Error en consulta de propiedades')

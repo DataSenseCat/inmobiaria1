@@ -22,10 +22,11 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Connection Test - Remove this after debugging */}
+          {/* Connection Test - Temporarily disabled
           <div className="mb-8">
             <SimpleConnectionTest />
           </div>
+          */}
 
           <Suspense fallback={
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
