@@ -22,7 +22,7 @@ const valuationSchema = z.object({
 
 type ValuationFormData = z.infer<typeof valuationSchema>
 
-export function ValuationForm() {
+export default function ValuationForm() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
