@@ -1,6 +1,22 @@
-import { redirect } from 'next/navigation'
-
 export default function HomePage() {
-  // Redirect to the Builder-managed catch-all route
-  redirect('/inicio')
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="text-center">
+        <h1 className="text-4xl font-bold text-gray-900 mb-4">
+          Inmobiliaria Catamarca
+        </h1>
+        <p className="text-gray-600 mb-8">
+          Sistema de gestión inmobiliaria en desarrollo
+        </p>
+        <div className="space-y-4">
+          <a
+            href="/propiedades"
+            className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+          >
+            Ver Propiedades
+          </a>
+        </div>
+      </div>
+    </div>
+  )
 }
