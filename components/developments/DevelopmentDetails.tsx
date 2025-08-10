@@ -5,7 +5,7 @@ import { MapPin, Calendar, Phone, Mail, CheckCircle, TrendingUp } from 'lucide-r
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { ContactForm } from '@/components/properties/ContactForm'
+import ContactForm from '@/components/properties/ContactForm'
 
 interface DevelopmentDetailsProps {
   development: {
@@ -273,9 +273,9 @@ export function DevelopmentDetails({ development }: DevelopmentDetailsProps) {
                 <CardTitle>Solicitar Información</CardTitle>
               </CardHeader>
               <CardContent>
-                <ContactForm 
-                  developmentId={development.id}
-                  developmentTitle={development.title}
+                <ContactForm
+                  propertyId={development.id}
+                  propertyTitle={development.title}
                 />
               </CardContent>
             </Card>
