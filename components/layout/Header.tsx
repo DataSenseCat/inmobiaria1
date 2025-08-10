@@ -231,6 +231,29 @@ export default function Header() {
                   Contacto
                 </Link>
 
+                {/* Admin Links */}
+                {user && isAdmin && (
+                  <Link
+                    href="/admin"
+                    className="flex items-center space-x-2 text-blue-600 hover:text-blue-800 font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Panel Admin</span>
+                  </Link>
+                )}
+
+                {user && !isAdmin && (
+                  <Link
+                    href="/configurar-admin"
+                    className="flex items-center space-x-2 text-orange-600 hover:text-orange-800 font-medium"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <Shield className="h-4 w-4" />
+                    <span>Configurar Admin</span>
+                  </Link>
+                )}
+
                 {/* Mobile Search */}
                 <div className="pt-4 border-t">
                   <div className="relative">
