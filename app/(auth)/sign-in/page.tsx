@@ -6,22 +6,21 @@ import Link from 'next/link'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Loader2, Mail, Lock, Eye, EyeOff } from 'lucide-react'
+import { Loader2, Mail } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 
 const signInSchema = z.object({
-  email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'La contraseña debe tener al menos 6 caracteres')
+  email: z.string().email('Email inválido')
 })
 
 type SignInFormData = z.infer<typeof signInSchema>
 
 export default function SignInPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [showPassword, setShowPassword] = useState(false)
+  const [otpSent, setOtpSent] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -41,24 +40,21 @@ export default function SignInPage() {
     setError(null)
 
     try {
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { error: authError } = await supabase.auth.signInWithOtp({
         email: data.email,
-        password: data.password
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback?redirectTo=${encodeURIComponent(redirectedFrom || '/')}`
+        }
       })
 
       if (authError) {
         throw authError
       }
 
-      if (authData.user) {
-        // Redirect to the originally requested page or home
-        const redirectTo = redirectedFrom || '/'
-        router.push(redirectTo)
-        router.refresh()
-      }
+      setOtpSent(true)
     } catch (error: any) {
       console.error('Sign in error:', error)
-      setError(error.message || 'Error al iniciar sesión')
+      setError(error.message || 'Error al enviar el enlace de acceso')
     } finally {
       setIsLoading(false)
     }
@@ -84,9 +80,14 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Iniciar Sesión</CardTitle>
+          <CardTitle className="text-2xl font-bold">
+            {otpSent ? 'Revisa tu Email' : 'Iniciar Sesión'}
+          </CardTitle>
           <CardDescription>
-            Ingresa a tu cuenta para acceder a todas las funcionalidades
+            {otpSent
+              ? 'Te enviamos un enlace mágico para acceder a tu cuenta'
+              : 'Ingresa tu email para recibir un enlace de acceso seguro'
+            }
           </CardDescription>
         </CardHeader>
         
@@ -97,59 +98,62 @@ export default function SignInPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  type="email"
-                  placeholder="Email"
-                  className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
-                  {...register('email')}
-                />
+          {otpSent ? (
+            <div className="text-center space-y-4">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <Mail className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-blue-800 font-medium mb-1">
+                  ¡Enlace enviado!
+                </p>
+                <p className="text-blue-700 text-sm">
+                  Revisa tu bandeja de entrada y haz clic en el enlace para acceder.
+                </p>
               </div>
-              {errors.email && (
-                <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
-              )}
-            </div>
 
-            <div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                <Input
-                  type={showPassword ? 'text' : 'password'}
-                  placeholder="Contraseña"
-                  className={`pl-10 pr-10 ${errors.password ? 'border-red-500' : ''}`}
-                  {...register('password')}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                </button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOtpSent(false)
+                  setError(null)
+                }}
+                className="w-full"
+              >
+                Enviar otro enlace
+              </Button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+              <div>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    type="email"
+                    placeholder="tu@email.com"
+                    className={`pl-10 ${errors.email ? 'border-red-500' : ''}`}
+                    {...register('email')}
+                  />
+                </div>
+                {errors.email && (
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
+                )}
               </div>
-              {errors.password && (
-                <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
-              )}
-            </div>
 
-            <Button
-              type="submit"
-              className="w-full"
-              disabled={isLoading}
-            >
-              {isLoading ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Iniciando sesión...
-                </>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </Button>
-          </form>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enviando enlace...
+                  </>
+                ) : (
+                  'Enviar Enlace Mágico'
+                )}
+              </Button>
+            </form>
+          )}
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
@@ -189,23 +193,15 @@ export default function SignInPage() {
             Google
           </Button>
 
-          <div className="text-center">
-            <p className="text-sm text-muted-foreground">
-              ¿No tienes una cuenta?{' '}
-              <Link href="/auth/sign-up" className="text-primary hover:underline">
-                Regístrate aquí
-              </Link>
-            </p>
-          </div>
-
-          <div className="text-center">
-            <Link
-              href="/auth/forgot-password"
-              className="text-sm text-primary hover:underline"
-            >
-              ¿Olvidaste tu contraseña?
-            </Link>
-          </div>
+          {!otpSent && (
+            <div className="text-center">
+              <p className="text-sm text-muted-foreground">
+                El enlace mágico es seguro y no requiere contraseña.
+                <br />
+                Si no tienes cuenta, se creará automáticamente.
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
