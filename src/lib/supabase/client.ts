@@ -39,12 +39,18 @@ export const testConnection = async () => {
   try {
     console.log('Testing Supabase connection...')
     const { data, error } = await supabase.from('properties').select('count').limit(1)
-    
+
     if (error) {
       console.error('Supabase connection test failed:', error)
+
+      // Check if it's a table not found error
+      if (error.code === 'PGRST116' || error.message.includes('relation') || error.message.includes('does not exist')) {
+        return { success: false, error: 'Tablas de la base de datos no existen. Usando datos de ejemplo.' }
+      }
+
       return { success: false, error: error.message }
     }
-    
+
     console.log('Supabase connection test successful')
     return { success: true, data }
   } catch (err) {
