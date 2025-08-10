@@ -105,9 +105,14 @@ export default function AdminPage() {
       })
 
     } catch (err) {
-      console.error('Error fetching dashboard data:', err)
-      setError('Error al cargar los datos. Mostrando información de ejemplo.')
-      
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      console.error('Error fetching dashboard data:', {
+        error: err,
+        message: errorMessage,
+        stack: err instanceof Error ? err.stack : undefined
+      })
+      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando información de ejemplo.`)
+
       // Load sample data on error
       const sampleProps = getSampleProperties()
       const sampleLeadsData = getSampleLeads()
