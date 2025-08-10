@@ -5,7 +5,8 @@ import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 const createLeadSchema = z.object({
-  property_id: z.string().uuid('ID de propiedad inválido'),
+  kind: z.enum(['contacto', 'tasacion'], { required_error: 'Tipo de lead requerido' }),
+  property_id: z.string().uuid('ID de propiedad inválido').optional(),
   name: z.string().min(2, 'El nombre debe tener al menos 2 caracteres'),
   phone: z.string().optional(),
   email: z.string().email('Email inválido').optional(),
@@ -24,17 +25,19 @@ export async function createLead(input: CreateLeadInput) {
     // Create Supabase client
     const supabase = createServerSupabaseClient()
     
-    // Check if property exists
-    const { data: property, error: propertyError } = await supabase
-      .from('properties')
-      .select('id, title')
-      .eq('id', validatedData.property_id)
-      .single()
-    
-    if (propertyError || !property) {
-      return {
-        success: false,
-        error: 'Propiedad no encontrada'
+    // Check if property exists (only for property-related leads)
+    if (validatedData.property_id) {
+      const { data: property, error: propertyError } = await supabase
+        .from('properties')
+        .select('id, title')
+        .eq('id', validatedData.property_id)
+        .single()
+
+      if (propertyError || !property) {
+        return {
+          success: false,
+          error: 'Propiedad no encontrada'
+        }
       }
     }
     
@@ -42,11 +45,13 @@ export async function createLead(input: CreateLeadInput) {
     const { data: lead, error: leadError } = await supabase
       .from('leads')
       .insert([{
-        property_id: validatedData.property_id,
+        kind: validatedData.kind,
+        property_id: validatedData.property_id || null,
         name: validatedData.name,
         phone: validatedData.phone || null,
         email: validatedData.email || null,
-        message: validatedData.message
+        message: validatedData.message,
+        is_read: false
       }])
       .select()
       .single()
