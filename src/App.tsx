@@ -25,6 +25,7 @@ import AdminPage from './pages/admin/AdminPage'
 import ConfigAdminPage from './pages/setup/ConfigAdminPage'
 import ConfigDbPage from './pages/setup/ConfigDbPage'
 import DebugAdminPage from './pages/setup/DebugAdminPage'
+import DebugPage from './pages/DebugPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
@@ -37,6 +38,7 @@ function App() {
         <Route path="/configurar-admin" element={<ConfigAdminPage />} />
         <Route path="/configurar-db" element={<ConfigDbPage />} />
         <Route path="/debug-admin" element={<DebugAdminPage />} />
+        <Route path="/debug" element={<DebugPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />
