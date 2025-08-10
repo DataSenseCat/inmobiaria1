@@ -25,7 +25,11 @@ export default function RootLayout({
   return (
     <html lang="es-AR">
       <body className={inter.className}>
-        {children}
+        <Header />
+        <main className="min-h-screen">
+          {children}
+        </main>
+        <Footer />
       </body>
     </html>
   )
