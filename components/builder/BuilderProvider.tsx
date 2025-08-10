@@ -10,11 +10,11 @@ interface BuilderProviderProps {
 export function BuilderProvider({ children }: BuilderProviderProps) {
   useEffect(() => {
     const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
-
+    
     if (apiKey && apiKey !== 'REEMPLAZAR_CON_TU_PUBLIC_API_KEY') {
       try {
         Builder.init(apiKey)
-
+        
         // Configure preview mode
         if (typeof window !== 'undefined') {
           Builder.isStatic = false
