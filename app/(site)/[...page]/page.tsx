@@ -20,7 +20,7 @@ interface PageProps {
 
 export default async function Page({ params, searchParams }: PageProps) {
   const urlPath = '/' + (params?.page?.join('/') || '')
-
+  
   // Only try to get content from Builder if API key is configured
   let page = null
   const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
