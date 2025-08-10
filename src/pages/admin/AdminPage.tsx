@@ -22,8 +22,6 @@ import {
   Calendar,
   MapPin,
   AlertCircle,
-  CheckCircle,
-  Clock,
   Star
 } from 'lucide-react'
 

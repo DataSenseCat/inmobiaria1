@@ -100,7 +100,6 @@ export default function ContactMap() {
           <TileLayer
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            onError={handleMapError}
           />
           <Marker position={[companyLocation.lat, companyLocation.lng]}>
             <Popup>
