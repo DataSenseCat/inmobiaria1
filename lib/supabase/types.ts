@@ -9,46 +9,6 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      profiles: {
-        Row: {
-          user_id: string
-          role: 'admin' | 'agent' | 'user'
-          created_at: string
-        }
-        Insert: {
-          user_id: string
-          role?: 'admin' | 'agent' | 'user'
-          created_at?: string
-        }
-        Update: {
-          user_id?: string
-          role?: 'admin' | 'agent' | 'user'
-          created_at?: string
-        }
-      }
-      agents: {
-        Row: {
-          id: string
-          name: string
-          phone: string | null
-          email: string
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          name: string
-          phone?: string | null
-          email: string
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          name?: string
-          phone?: string | null
-          email?: string
-          created_at?: string
-        }
-      }
       properties: {
         Row: {
           id: string
@@ -114,6 +74,29 @@ export type Database = {
           updated_at?: string
         }
       }
+      agents: {
+        Row: {
+          id: string
+          name: string
+          phone: string | null
+          email: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          phone?: string | null
+          email: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          phone?: string | null
+          email?: string
+          created_at?: string
+        }
+      }
       images: {
         Row: {
           id: string
@@ -132,49 +115,6 @@ export type Database = {
           property_id?: string
           url?: string
           alt?: string | null
-        }
-      }
-      leads: {
-        Row: {
-          id: string
-          property_id: string
-          name: string
-          phone: string | null
-          email: string | null
-          message: string | null
-          created_at: string
-        }
-        Insert: {
-          id?: string
-          property_id: string
-          name: string
-          phone?: string | null
-          email?: string | null
-          message?: string | null
-          created_at?: string
-        }
-        Update: {
-          id?: string
-          property_id?: string
-          name?: string
-          phone?: string | null
-          email?: string | null
-          message?: string | null
-          created_at?: string
-        }
-      }
-      favorites: {
-        Row: {
-          user_id: string
-          property_id: string
-        }
-        Insert: {
-          user_id: string
-          property_id: string
-        }
-        Update: {
-          user_id?: string
-          property_id?: string
         }
       }
     }
@@ -204,8 +144,5 @@ export type Property = Tables<'properties'> & {
   agent?: Tables<'agents'>
 }
 
-export type Lead = Tables<'leads'>
 export type Agent = Tables<'agents'>
 export type PropertyImage = Tables<'images'>
-export type Profile = Tables<'profiles'>
-export type Favorite = Tables<'favorites'>
