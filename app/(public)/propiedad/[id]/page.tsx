@@ -1,6 +1,8 @@
+'use client'
+
 import { notFound } from 'next/navigation'
 import Image from 'next/image'
-import { Metadata } from 'next/metadata'
+import { useEffect, useState } from 'react'
 import { MapPin, BedDouble, Bath, Maximize, Calendar, MessageCircle, Share2, Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
