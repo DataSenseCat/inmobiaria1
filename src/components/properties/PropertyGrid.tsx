@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase/client'
+import { supabase, testConnection } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
 import { Property } from '@/lib/supabase/types'
 import { Loader2, AlertCircle } from 'lucide-react'
