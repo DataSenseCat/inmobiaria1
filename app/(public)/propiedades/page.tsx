@@ -1,7 +1,7 @@
 import { Suspense } from 'react'
 import { Metadata } from 'next'
-import { PropertyGrid } from '@/components/properties/PropertyGrid'
-import { FiltersBar } from '@/components/properties/FiltersBar'
+import PropertyGrid from '@/components/properties/PropertyGrid'
+import FiltersBar from '@/components/properties/FiltersBar'
 
 export const metadata: Metadata = {
   title: 'Propiedades en Venta y Alquiler - Catamarca',
