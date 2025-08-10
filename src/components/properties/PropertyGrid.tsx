@@ -119,9 +119,14 @@ export default function PropertyGrid({
       setProperties(data || [])
       setHasMore((data?.length || 0) === pageSize)
     } catch (err) {
-      console.error('Error fetching properties:', err)
-      setError('Error al cargar las propiedades. Mostrando datos de ejemplo.')
-      
+      const errorMessage = err instanceof Error ? err.message : String(err)
+      console.error('Error fetching properties:', {
+        error: err,
+        message: errorMessage,
+        stack: err instanceof Error ? err.stack : undefined
+      })
+      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando datos de ejemplo.`)
+
       // Show sample data if there's an error
       setProperties(getSampleProperties())
     } finally {
