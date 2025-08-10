@@ -5,7 +5,7 @@ import { MapPin, BedDouble, Bath, Maximize, Calendar, MessageCircle, Share2, Hea
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import PropertyMap from '@/components/properties/PropertyMap'
-import { ContactForm } from '@/components/properties/ContactForm'
+import ContactForm from '@/components/properties/ContactForm'
 import { createClient } from '@/lib/supabase/server'
 import { formatPrice, formatArea, getWhatsAppUrl } from '@/lib/utils'
 import { PropertyStructuredData, BreadcrumbStructuredData } from '@/components/seo/StructuredData'
