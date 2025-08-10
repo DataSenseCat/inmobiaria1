@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase, testConnection } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
 import { Property } from '@/lib/supabase/types'
+import { logError, handleSupabaseError } from '@/lib/utils/errorUtils'
 import { Loader2, AlertCircle } from 'lucide-react'
 
 interface PropertyGridProps {
@@ -123,7 +124,7 @@ export default function PropertyGrid({
       const { data, error: fetchError } = await query
 
       if (fetchError) {
-        console.error('Supabase query error:', fetchError)
+        const errorMessage = handleSupabaseError(fetchError, 'Error en consulta de propiedades')
 
         // Check if it's a table not found error
         if (fetchError.code === 'PGRST116' || fetchError.message.includes('relation') || fetchError.message.includes('does not exist')) {
@@ -133,20 +134,15 @@ export default function PropertyGrid({
           return
         }
 
-        throw new Error(`Error en consulta: ${fetchError.message} (Code: ${fetchError.code})`)
+        throw new Error(errorMessage)
       }
 
       console.log('Properties fetched successfully:', data?.length || 0)
       setProperties(data || [])
       setHasMore((data?.length || 0) === pageSize)
     } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : String(err)
-      console.error('Error fetching properties:', {
-        error: err,
-        message: errorMessage,
-        stack: err instanceof Error ? err.stack : undefined
-      })
-      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando datos de ejemplo.`)
+      const errorLog = logError(err, 'PropertyGrid.fetchProperties')
+      setError(`Error al conectar con la base de datos: ${errorLog.message}. Mostrando datos de ejemplo.`)
 
       // Show sample data if there's an error
       setProperties(getSampleProperties())
