@@ -121,6 +121,22 @@ export default function Header() {
               <Link href="/contacto" className="text-gray-700 hover:text-gray-900 font-medium transition-colors">
                 Contacto
               </Link>
+
+              {/* Admin Link */}
+              {user && isAdmin && (
+                <Link href="/admin" className="flex items-center space-x-1 text-blue-600 hover:text-blue-800 font-medium transition-colors">
+                  <Shield className="h-4 w-4" />
+                  <span>Admin</span>
+                </Link>
+              )}
+
+              {/* Admin Setup Link */}
+              {user && !isAdmin && (
+                <Link href="/configurar-admin" className="flex items-center space-x-1 text-orange-600 hover:text-orange-800 font-medium transition-colors">
+                  <Shield className="h-4 w-4" />
+                  <span>Configurar Admin</span>
+                </Link>
+              )}
             </nav>
 
             {/* Mobile menu button */}
