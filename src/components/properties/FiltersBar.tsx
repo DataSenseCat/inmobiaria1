@@ -1,13 +1,11 @@
-'use client'
-
 import { useState, useEffect } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Search, Filter, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Card, CardContent } from '@/components/ui/card'
-import { cn } from '@/lib/utils'
+import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { Card, CardContent } from '../ui/card'
+import { cn } from '../../lib/utils'
 
 interface FiltersBarProps {
   showOperation?: boolean
@@ -28,8 +26,8 @@ export default function FiltersBar({
   orientation = 'horizontal',
   className
 }: FiltersBarProps) {
-  const router = useRouter()
-  const searchParams = useSearchParams()
+  const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   
   const [filters, setFilters] = useState({
     operation: searchParams.get('operation') || '',
@@ -54,7 +52,7 @@ export default function FiltersBar({
     const queryString = params.toString()
     const currentPath = window.location.pathname
     
-    router.push(queryString ? `${currentPath}?${queryString}` : currentPath, { scroll: false })
+    navigate(queryString ? `${currentPath}?${queryString}` : currentPath, { replace: true })
   }, [filters, router])
 
   const updateFilter = (key: string, value: string) => {
