@@ -26,9 +26,6 @@ export default function ContactMap() {
     setIsClient(true)
   }, [])
 
-  const handleMapError = () => {
-    setMapError(true)
-  }
 
   // Fallback map with static image and directions link
   const StaticMap = () => (
