@@ -203,7 +203,7 @@ export default function PropertyGrid({
       )}
 
       {/* Properties Grid */}
-      {properties.length === 0 ? (
+      {!error && properties.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-6xl mb-4">🏠</div>
           <h3 className="text-xl font-semibold mb-2">No hay propiedades disponibles</h3>
