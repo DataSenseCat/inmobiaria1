@@ -11,8 +11,9 @@ const Hero = dynamic(() => import('../ui/Hero'), { ssr: false })
 const Callout = dynamic(() => import('../ui/Callout'), { ssr: false })
 
 export function registerBuilderComponents() {
-  // Only register if Builder is initialized
-  if (typeof window !== 'undefined' && Builder.isEditing) {
+  // Only register if Builder is initialized and we have a valid API key
+  const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+  if (typeof window !== 'undefined' && apiKey && apiKey !== 'REEMPLAZAR_CON_TU_PUBLIC_API_KEY' && Builder.isEditing) {
     
     // Register PropertyGrid component
     Builder.registerComponent(PropertyGrid, {
