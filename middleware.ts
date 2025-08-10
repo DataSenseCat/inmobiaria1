@@ -17,20 +17,20 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith(route)
   )
 
-  // If accessing protected route without user, redirect to sign-in
-  if (isProtectedRoute && !user) {
+  // If accessing protected route without session, redirect to sign-in
+  if (isProtectedRoute && !session) {
     const redirectUrl = new URL('/auth/sign-in', request.url)
     redirectUrl.searchParams.set('redirectedFrom', request.nextUrl.pathname)
     return NextResponse.redirect(redirectUrl)
   }
 
   // Check role-based access for admin routes
-  if (request.nextUrl.pathname.startsWith('/admin') && user) {
+  if (request.nextUrl.pathname.startsWith('/admin') && session) {
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
-        .eq('user_id', user.id)
+        .eq('user_id', session.user.id)
         .single()
 
       // If user doesn't have admin or agent role, redirect to home
@@ -44,11 +44,11 @@ export async function middleware(request: NextRequest) {
   }
 
   // Handle auth routes - redirect authenticated users away from sign-in
-  if (user && request.nextUrl.pathname.startsWith('/auth/sign-in')) {
+  if (session && request.nextUrl.pathname.startsWith('/auth/sign-in')) {
     return NextResponse.redirect(new URL('/', request.url))
   }
 
-  return response
+  return res
 }
 
 export const config = {
