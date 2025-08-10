@@ -32,9 +32,12 @@ export default function PropertyGrid({
   const [error, setError] = useState<string | null>(null)
   const [hasMore, setHasMore] = useState(true)
 
+  // Use JSON.stringify to prevent infinite re-renders from object recreation
+  const filtersString = JSON.stringify(filters)
+
   useEffect(() => {
     fetchProperties()
-  }, [filters, showFeatured, pageSize])
+  }, [filtersString, showFeatured, pageSize])
 
   const fetchProperties = async () => {
     try {
