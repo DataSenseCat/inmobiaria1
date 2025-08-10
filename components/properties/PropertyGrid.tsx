@@ -205,7 +205,7 @@ export default function PropertyGrid({
             </button>
 
             <button
-              onClick={() => window.open('/supabase/migrations/000_init.sql', '_blank')}
+              onClick={() => window.open('/init-database.sql', '_blank')}
               className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
             >
               📄 Ver Script SQL
