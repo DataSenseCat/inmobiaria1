@@ -191,7 +191,14 @@ export default function PropertyGrid({
             </div>
           </div>
 
-          <div className="flex gap-3 justify-center">
+          <div className="flex flex-wrap gap-3 justify-center">
+            <button
+              onClick={() => window.location.href = '/configurar-db'}
+              className="px-6 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+            >
+              📋 Guía Completa
+            </button>
+
             <button
               onClick={() => {
                 setPage(0)
