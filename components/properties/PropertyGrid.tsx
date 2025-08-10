@@ -166,26 +166,51 @@ export default function PropertyGrid({
 
       {/* Error Display */}
       {error && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">❌</div>
-          <h3 className="text-xl font-semibold mb-2 text-red-600">Error de Conexión</h3>
-          <p className="text-muted-foreground mb-4">
-            {error}
-          </p>
-          <p className="text-sm text-muted-foreground mb-4">
-            La base de datos no está configurada. Por favor ejecuta las migraciones SQL en Supabase.
-          </p>
-          <button 
-            onClick={() => {
-              setPage(0)
-              setProperties([])
-              setHasMore(true)
-              fetchProperties(0, true)
-            }}
-            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
-          >
-            Reintentar
-          </button>
+        <div className="text-center py-12 max-w-2xl mx-auto">
+          <div className="text-6xl mb-4">🗄️</div>
+          <h3 className="text-2xl font-semibold mb-4 text-blue-600">Base de Datos No Configurada</h3>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6 text-left">
+            <h4 className="font-semibold text-blue-800 mb-3">✨ ¡Tu aplicación está lista!</h4>
+            <p className="text-blue-700 mb-4">
+              Solo necesitas crear las tablas en Supabase para ver las propiedades.
+            </p>
+
+            <div className="bg-white rounded p-4 mb-4">
+              <h5 className="font-medium mb-2">📋 Pasos para activar:</h5>
+              <ol className="text-sm space-y-2 text-gray-700">
+                <li><strong>1.</strong> Ir a <a href="https://app.supabase.com" target="_blank" className="text-blue-600 hover:underline">app.supabase.com</a></li>
+                <li><strong>2.</strong> Abrir "SQL Editor"</li>
+                <li><strong>3.</strong> Ejecutar el archivo <code className="bg-gray-100 px-1 rounded">supabase/migrations/000_init.sql</code></li>
+                <li><strong>4.</strong> ¡Listo! Las propiedades aparecerán automáticamente</li>
+              </ol>
+            </div>
+
+            <div className="text-xs text-blue-600 bg-blue-100 p-2 rounded">
+              <strong>Error técnico:</strong> {error.includes('PGRST205') ? 'Tabla "properties" no encontrada' : error}
+            </div>
+          </div>
+
+          <div className="flex gap-3 justify-center">
+            <button
+              onClick={() => {
+                setPage(0)
+                setProperties([])
+                setHasMore(true)
+                fetchProperties(0, true)
+              }}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              🔄 Verificar Conexión
+            </button>
+
+            <button
+              onClick={() => window.open('/supabase/migrations/000_init.sql', '_blank')}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            >
+              📄 Ver Script SQL
+            </button>
+          </div>
         </div>
       )}
 
