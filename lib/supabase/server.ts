@@ -12,3 +12,6 @@ export const createRouteHandlerSupabaseClient = () => {
   const cookieStore = cookies()
   return createRouteHandlerClient<Database>({ cookies: () => cookieStore })
 }
+
+// Alias for consistency with the import pattern used in pages
+export const createClient = createServerSupabaseClient
