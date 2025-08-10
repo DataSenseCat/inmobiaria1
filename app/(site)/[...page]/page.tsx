@@ -51,84 +51,61 @@ export default async function Page({ params, searchParams }: PageProps) {
     )
   }
 
-  // Fallback for homepage - show default property grid
+  // Fallback for common pages - show appropriate content
   if (urlPath === '/' || urlPath === '/inicio') {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header />
         <HeroSection />
-        
+
         {/* Properties Section */}
         <section className="py-16">
           <div className="container mx-auto px-4">
-            <PropertyGrid 
+            <PropertyGrid
               title="Propiedades Destacadas"
               featuredOnly={true}
               pageSize={6}
               className="mb-12"
             />
-            
-            <PropertyGrid 
+
+            <PropertyGrid
               title="Últimas Propiedades"
               pageSize={6}
             />
           </div>
         </section>
-
-        {/* Footer placeholder */}
-        <footer className="bg-gray-900 text-white py-12">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-4 gap-8">
-              <div>
-                <div className="bg-white text-gray-900 px-4 py-2 rounded inline-block mb-4">
-                  <div className="font-bold">CATAMARCA</div>
-                  <div className="text-xs uppercase tracking-wider">INMOBILIARIA</div>
-                </div>
-                <p className="text-gray-400 text-sm">
-                  La inmobiliaria líder en Catamarca con más de 10 años de experiencia.
-                </p>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Servicios</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>Venta de Propiedades</li>
-                  <li>Alquiler</li>
-                  <li>Tasaciones</li>
-                  <li>Asesoramiento</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Contacto</h4>
-                <ul className="space-y-2 text-sm text-gray-400">
-                  <li>+54 383 4567890</li>
-                  <li>contacto@inmobiliariacatamarca.com</li>
-                  <li>Catamarca, Argentina</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h4 className="font-semibold mb-4">Síguenos</h4>
-                <div className="flex space-x-4">
-                  <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-                  <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-                  <div className="w-8 h-8 bg-gray-700 rounded-full"></div>
-                </div>
-              </div>
-            </div>
-            
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
-              © 2024 Inmobiliaria Catamarca. Todos los derechos reservados.
-            </div>
-          </div>
-        </footer>
       </div>
     )
   }
 
-  // If no content found, return 404
-  notFound()
+  // For other pages, return a fallback instead of 404
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-16">
+        <div className="text-center">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            Página en Construcción
+          </h1>
+          <p className="text-gray-600 mb-8">
+            Esta página está siendo desarrollada. Mientras tanto, puedes explorar nuestras propiedades.
+          </p>
+          <div className="space-x-4">
+            <a
+              href="/"
+              className="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Ir al Inicio
+            </a>
+            <a
+              href="/propiedades"
+              className="inline-block border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition-colors"
+            >
+              Ver Propiedades
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 // Enable ISR
