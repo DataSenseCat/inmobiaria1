@@ -114,6 +114,7 @@ export function useSupabase() {
 
   return {
     user,
+    profile,
     loading,
     signOut,
     signInWithEmail,
