@@ -56,6 +56,18 @@ export default function PropertyGrid({
       console.log('Supabase client:', supabase)
       console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
 
+      // Test basic connection
+      try {
+        const { data: testData, error: testError } = await supabase
+          .from('properties')
+          .select('id')
+          .limit(1)
+
+        console.log('Test query result:', { testData, testError })
+      } catch (testErr) {
+        console.error('Test query failed:', testErr)
+      }
+
       let query = supabase
         .from('properties')
         .select(`
