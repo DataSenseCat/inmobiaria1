@@ -55,7 +55,7 @@ export default function PropertyGrid({
         .from('properties')
         .select(`
           *,
-          property_images (
+          images (
             id,
             url,
             alt,
