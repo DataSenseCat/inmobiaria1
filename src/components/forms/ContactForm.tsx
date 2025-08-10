@@ -66,7 +66,12 @@ export default function ContactForm() {
         throw new Error('Error al enviar el mensaje')
       }
     } catch (error) {
-      console.error('Error:', error)
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Contact form error:', {
+        error,
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      })
       
       // Fallback: Open email client
       const emailBody = `

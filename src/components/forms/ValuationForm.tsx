@@ -65,8 +65,13 @@ ${data.message ? `Mensaje: ${data.message}` : ''}`
         throw new Error('Error al enviar la solicitud')
       }
     } catch (error) {
-      console.error('Error:', error)
-      alert('Hubo un error al enviar tu solicitud. Por favor, inténtalo nuevamente.')
+      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error('Valuation form error:', {
+        error,
+        message: errorMessage,
+        stack: error instanceof Error ? error.stack : undefined
+      })
+      alert(`Hubo un error al enviar tu solicitud: ${errorMessage}. Por favor, inténtalo nuevamente.`)
     } finally {
       setIsSubmitting(false)
     }
