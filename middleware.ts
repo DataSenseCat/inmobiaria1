@@ -8,8 +8,8 @@ export async function middleware(request: NextRequest) {
 
   // Get current session
   const {
-    data: { user },
-  } = await supabase.auth.getUser()
+    data: { session },
+  } = await supabase.auth.getSession()
 
   // Protected routes that require authentication
   const protectedRoutes = ['/admin', '/favoritos']
