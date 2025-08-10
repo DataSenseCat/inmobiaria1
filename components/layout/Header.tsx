@@ -5,7 +5,7 @@ import { Search, Phone, Mail, MapPin, ChevronDown, Menu, X, User, Heart } from '
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { useState } from 'react'
-// Note: useSupabase hook will be implemented when we add authentication
+import { useSupabase } from '@/lib/hooks/useSupabase'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
