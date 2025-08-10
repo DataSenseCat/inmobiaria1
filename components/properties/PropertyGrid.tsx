@@ -177,6 +177,31 @@ export default function PropertyGrid({
         )}
       </div>
 
+      {/* Error Display */}
+      {error && (
+        <div className="text-center py-12">
+          <div className="text-6xl mb-4">❌</div>
+          <h3 className="text-xl font-semibold mb-2 text-red-600">Error de Conexión</h3>
+          <p className="text-muted-foreground mb-4">
+            {error}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Verifica que la base de datos esté configurada correctamente.
+          </p>
+          <button
+            onClick={() => {
+              setPage(0)
+              setProperties([])
+              setHasMore(true)
+              fetchProperties(0, true)
+            }}
+            className="mt-4 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Reintentar
+          </button>
+        </div>
+      )}
+
       {/* Properties Grid */}
       {properties.length === 0 ? (
         <div className="text-center py-12">
