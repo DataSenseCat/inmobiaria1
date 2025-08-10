@@ -52,6 +52,10 @@ export default function PropertyGrid({
         setLoadingMore(true)
       }
 
+      // Debug: Check if supabase client is properly initialized
+      console.log('Supabase client:', supabase)
+      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+
       let query = supabase
         .from('properties')
         .select(`
