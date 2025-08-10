@@ -69,13 +69,14 @@ export default function PropertyDetailsPage() {
   }
 
   const operationLabel = property.operation === 'venta' ? 'Venta' : 'Alquiler'
-  const typeLabel = {
+  const typeLabelMap = {
     casa: 'Casa',
     departamento: 'Departamento',
     ph: 'PH',
     lote: 'Lote',
     local: 'Local Comercial'
-  }[property.type]
+  }
+  const typeLabel = typeLabelMap[property.type as keyof typeof typeLabelMap]
 
   return (
     <div className="min-h-screen bg-background">
@@ -95,7 +96,7 @@ export default function PropertyDetailsPage() {
               {/* Side Images */}
               {property.images.length > 1 && (
                 <div className="hidden md:flex flex-col gap-2">
-                  {property.images.slice(1, 3).map((image, index) => (
+                  {property.images.slice(1, 3).map((image: any, index: number) => (
                     <div key={image.id} className="relative flex-1">
                       <img
                         src={image.url}
