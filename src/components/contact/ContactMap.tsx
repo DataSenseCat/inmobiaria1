@@ -13,7 +13,7 @@ Icon.Default.mergeOptions({
 
 export default function ContactMap() {
   const [isClient, setIsClient] = useState(false)
-  const [mapError, setMapError] = useState(false)
+  const [mapError] = useState(false)
 
   // Company location: Catamarca, Argentina (approximate coordinates)
   const companyLocation = {
