@@ -38,6 +38,7 @@ function App() {
         <Route path="/configurar-admin" element={<ConfigAdminPage />} />
         <Route path="/configurar-db" element={<ConfigDbPage />} />
         <Route path="/debug-admin" element={<DebugAdminPage />} />
+        <Route path="/debug" element={<DebugPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />
