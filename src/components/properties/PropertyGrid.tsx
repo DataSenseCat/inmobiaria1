@@ -40,6 +40,12 @@ export default function PropertyGrid({
       setLoading(true)
       setError(null)
 
+      // Test connection first
+      const connectionTest = await testConnection()
+      if (!connectionTest.success) {
+        throw new Error(`Conexión fallida: ${connectionTest.error}`)
+      }
+
       let query = supabase
         .from('properties')
         .select(`
