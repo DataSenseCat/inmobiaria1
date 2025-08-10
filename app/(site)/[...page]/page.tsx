@@ -1,6 +1,5 @@
 import { builder } from '@builder.io/sdk'
 import { RenderBuilderContent } from '@/components/builder/RenderBuilderContent'
-import { notFound } from 'next/navigation'
 import Header from '@/components/layout/Header'
 import HeroSection from '@/components/layout/HeroSection'
 import PropertyGrid from '@/components/properties/PropertyGrid'
