@@ -3,7 +3,7 @@ interface ContactFormProps {
   propertyTitle: string
 }
 
-export default function ContactForm({ propertyId, propertyTitle }: ContactFormProps) {
+export default function ContactForm({ propertyId }: ContactFormProps) {
   return (
     <div className="bg-white rounded-lg p-6 border">
       <h3 className="text-lg font-semibold mb-4">Contactar por esta propiedad</h3>

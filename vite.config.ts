@@ -16,5 +16,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
-  envPrefix: 'NEXT_PUBLIC_',
+  envPrefix: 'VITE_',
 })
