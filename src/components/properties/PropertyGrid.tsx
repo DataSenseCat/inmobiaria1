@@ -43,7 +43,11 @@ export default function PropertyGrid({
       // Test connection first
       const connectionTest = await testConnection()
       if (!connectionTest.success) {
-        throw new Error(`Conexión fallida: ${connectionTest.error}`)
+        // If connection fails, use sample data immediately
+        console.warn('Using sample data due to connection failure:', connectionTest.error)
+        setProperties(getSampleProperties())
+        setError('Base de datos no disponible. Mostrando propiedades de ejemplo.')
+        return
       }
 
       let query = supabase
