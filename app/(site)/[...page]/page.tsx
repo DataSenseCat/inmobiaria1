@@ -3,8 +3,11 @@ import { RenderBuilderContent } from '@/components/builder/RenderBuilderContent'
 import { notFound } from 'next/navigation'
 import PropertyGrid from '@/components/properties/PropertyGrid'
 
-// Configure Builder
-builder.init(process.env.NEXT_PUBLIC_BUILDER_API_KEY!)
+// Configure Builder - only if API key is properly set
+const apiKey = process.env.NEXT_PUBLIC_BUILDER_API_KEY
+if (apiKey && apiKey !== 'REEMPLAZAR_CON_TU_PUBLIC_API_KEY') {
+  builder.init(apiKey)
+}
 
 interface PageProps {
   params: {
