@@ -131,7 +131,7 @@ export default function FiltersBar({
             <SelectValue placeholder="Operación" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas las operaciones</SelectItem>
+            <SelectItem value="all-operations">Todas las operaciones</SelectItem>
             {operationOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -148,7 +148,7 @@ export default function FiltersBar({
             <SelectValue placeholder="Tipo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todos los tipos</SelectItem>
+            <SelectItem value="all-types">Todos los tipos</SelectItem>
             {typeOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -165,7 +165,7 @@ export default function FiltersBar({
             <SelectValue placeholder="Ciudad" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Todas las ciudades</SelectItem>
+            <SelectItem value="all-cities">Todas las ciudades</SelectItem>
             {cities.map(city => (
               <SelectItem key={city} value={city}>
                 {city}
@@ -182,7 +182,7 @@ export default function FiltersBar({
             <SelectValue placeholder="Precio máximo" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Sin límite</SelectItem>
+            <SelectItem value="no-limit">Sin límite</SelectItem>
             {priceOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
@@ -199,7 +199,7 @@ export default function FiltersBar({
             <SelectValue placeholder="Ambientes" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="">Cualquier cantidad</SelectItem>
+            <SelectItem value="any-amount">Cualquier cantidad</SelectItem>
             {roomOptions.map(option => (
               <SelectItem key={option.value} value={option.value}>
                 {option.label}
