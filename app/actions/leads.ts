@@ -1,7 +1,7 @@
 'use server'
 
 import { z } from 'zod'
-import { createServerSupabaseClient } from '@/lib/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 const createLeadSchema = z.object({
@@ -23,7 +23,7 @@ export async function createLead(input: CreateLeadInput) {
     const validatedData = createLeadSchema.parse(input)
     
     // Create Supabase client
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
     
     // Check if property exists (only for property-related leads)
     if (validatedData.property_id) {
@@ -94,7 +94,7 @@ export async function createLead(input: CreateLeadInput) {
 
 export async function deleteLead(leadId: string) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
 
     // Check if user is authenticated and has proper role
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -152,7 +152,7 @@ export async function deleteLead(leadId: string) {
 
 export async function markLeadAsRead(leadId: string) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
 
     // Check if user is authenticated and has proper role
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -217,7 +217,7 @@ export async function listLeads(filters?: {
   offset?: number
 }) {
   try {
-    const supabase = createServerSupabaseClient()
+    const supabase = createClient()
 
     // Check if user is authenticated and has proper role
     const { data: { user }, error: authError } = await supabase.auth.getUser()
