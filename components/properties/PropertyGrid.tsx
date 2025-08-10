@@ -48,7 +48,7 @@ export default function PropertyGrid({
   const fetchProperties = async (currentPage: number, reset = false) => {
     try {
       setError(null) // Clear any previous errors
-
+      
       if (reset) {
         setLoading(true)
       } else {
@@ -56,20 +56,7 @@ export default function PropertyGrid({
       }
 
       // Debug: Check if supabase client is properly initialized
-      console.log('Supabase client:', supabase)
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
-
-      // Test basic connection
-      try {
-        const { data: testData, error: testError } = await supabase
-          .from('properties')
-          .select('id')
-          .limit(1)
-
-        console.log('Test query result:', { testData, testError })
-      } catch (testErr) {
-        console.error('Test query failed:', testErr)
-      }
+      console.log('Fetching properties...')
 
       let query = supabase
         .from('properties')
@@ -118,14 +105,14 @@ export default function PropertyGrid({
     } catch (error) {
       console.error('Error fetching properties:', error)
       console.error('Error details:', JSON.stringify(error, null, 2))
-
+      
       let errorMessage = 'Error al cargar propiedades'
       if (error instanceof Error) {
         console.error('Error message:', error.message)
         console.error('Error stack:', error.stack)
         errorMessage = error.message
       }
-
+      
       setError(errorMessage)
     } finally {
       setLoading(false)
@@ -185,10 +172,10 @@ export default function PropertyGrid({
           <p className="text-muted-foreground mb-4">
             {error}
           </p>
-          <p className="text-sm text-muted-foreground">
-            Verifica que la base de datos esté configurada correctamente.
+          <p className="text-sm text-muted-foreground mb-4">
+            La base de datos no está configurada. Por favor ejecuta las migraciones SQL en Supabase.
           </p>
-          <button
+          <button 
             onClick={() => {
               setPage(0)
               setProperties([])
@@ -213,47 +200,47 @@ export default function PropertyGrid({
             </p>
           </div>
         ) : (
-        <>
-          <motion.div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-          >
-            {properties.map((property, index) => (
-              <motion.div
-                key={property.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-              >
-                <PropertyCard property={property} />
-              </motion.div>
-            ))}
-          </motion.div>
+          <>
+            <motion.div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.5 }}
+            >
+              {properties.map((property, index) => (
+                <motion.div
+                  key={property.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                >
+                  <PropertyCard property={property} />
+                </motion.div>
+              ))}
+            </motion.div>
 
-          {/* Load More Button */}
-          {hasMore && (
-            <div className="text-center">
-              <Button
-                onClick={loadMore}
-                disabled={loadingMore}
-                variant="outline"
-                size="lg"
-                className="rounded-full"
-              >
-                {loadingMore ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Cargando...
-                  </>
-                ) : (
-                  'Cargar Más Propiedades'
-                )}
-              </Button>
-            </div>
-          )}
-        </>
+            {/* Load More Button */}
+            {hasMore && (
+              <div className="text-center">
+                <Button
+                  onClick={loadMore}
+                  disabled={loadingMore}
+                  variant="outline"
+                  size="lg"
+                  className="rounded-full"
+                >
+                  {loadingMore ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Cargando...
+                    </>
+                  ) : (
+                    'Cargar Más Propiedades'
+                  )}
+                </Button>
+              </div>
+            )}
+          </>
         )
       )}
     </div>
