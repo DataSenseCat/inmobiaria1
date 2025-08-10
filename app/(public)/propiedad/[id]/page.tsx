@@ -18,54 +18,47 @@ interface PropertyPageProps {
   }
 }
 
-async function getProperty(id: string) {
+export default function PropertyPage({ params }: PropertyPageProps) {
+  const [property, setProperty] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
-  try {
-    const { data, error } = await supabase
-      .from('properties')
-      .select(`
-        *,
-        images (id, url, alt),
-        agents (id, name, phone, email)
-      `)
-      .eq('id', id)
-      .single()
+  useEffect(() => {
+    async function fetchProperty() {
+      try {
+        const { data, error } = await supabase
+          .from('properties')
+          .select(`
+            *,
+            images (id, url, alt),
+            agents (id, name, phone, email)
+          `)
+          .eq('id', params.id)
+          .single()
 
-    if (error) throw error
-    return data
-  } catch (error) {
-    console.error('Error fetching property:', error)
-    return null
-  }
-}
-
-export async function generateMetadata({ params }: PropertyPageProps): Promise<Metadata> {
-  const property = await getProperty(params.id)
-
-  if (!property) {
-    return {
-      title: 'Propiedad no encontrada',
+        if (error) throw error
+        setProperty(data)
+      } catch (error) {
+        console.error('Error fetching property:', error)
+        setProperty(null)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchProperty()
+  }, [params.id, supabase])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Cargando propiedad...</p>
+        </div>
+      </div>
+    )
   }
-
-  const mainImage = property.images?.[0]?.url
-  const price = property.price_usd ? formatPrice(property.price_usd, 'USD') : ''
-
-  return {
-    title: `${property.title} - ${price} | Inmobiliaria Catamarca`,
-    description: property.description || `${property.operation} de ${property.type} en ${property.city}`,
-    openGraph: {
-      title: property.title,
-      description: property.description || '',
-      images: mainImage ? [{ url: mainImage }] : [],
-      type: 'website',
-    }
-  }
-}
-
-export default async function PropertyPage({ params }: PropertyPageProps) {
-  const property = await getProperty(params.id)
 
   if (!property) {
     notFound()
