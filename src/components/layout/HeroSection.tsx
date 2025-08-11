@@ -9,7 +9,13 @@ export default function HeroSection() {
              }}>
       <div className="absolute inset-0 bg-black bg-opacity-40"></div>
       
-      <div className="relative z-10 flex items-center justify-center h-full">
+      <div className="relative z-10 flex items-center justify-center h-full"
+           style={{
+             backgroundImage: 'url(https://cdn.builder.io/api/v1/image/assets%2Fa29a65487a2246d2b8205b8a9cb7b6f7%2Fe62524b860a146119d88717fab28ad54)',
+             backgroundRepeat: 'no-repeat',
+             backgroundPosition: 'center',
+             backgroundSize: 'cover'
+           }}>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
             Encuentre su propiedad
