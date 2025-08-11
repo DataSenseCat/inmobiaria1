@@ -20,6 +20,9 @@ import SignInPage from './pages/auth/SignInPage'
 // Protected pages
 import FavoritesPage from './pages/FavoritesPage'
 import AdminPage from './pages/admin/AdminPage'
+import CreatePropertyPage from './pages/admin/CreatePropertyPage'
+import EditPropertyPage from './pages/admin/EditPropertyPage'
+import PropertiesManagementPage from './pages/admin/PropertiesManagementPage'
 
 // Setup pages
 import ConfigAdminPage from './pages/setup/ConfigAdminPage'
