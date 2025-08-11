@@ -31,6 +31,7 @@ import DebugConnectionPage from './pages/DebugConnectionPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
+import AuthDebugPage from './pages/AuthDebugPage'
 
 function App() {
   return (
@@ -43,6 +44,7 @@ function App() {
         <Route path="/debug" element={<DebugPage />} />
         <Route path="/test-connection" element={<TestConnectionPage />} />
         <Route path="/debug-connection" element={<DebugConnectionPage />} />
+        <Route path="/auth-debug" element={<AuthDebugPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />
