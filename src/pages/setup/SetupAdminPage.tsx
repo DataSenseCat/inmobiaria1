@@ -41,31 +41,51 @@ export default function SetupAdminPage() {
   const checkStatus = async () => {
     try {
       setLoading(true)
-      
-      // Verificar si la tabla users existe
-      const { data: tables } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'users')
 
-      const tablesExist = Boolean(tables && tables.length > 0)
-
+      // Verificar si la tabla users existe intentando hacer una consulta directa
+      let tablesExist = false
       let userInDb = false
       let isAdmin = false
 
-      if (tablesExist && user) {
-        // Verificar si el usuario existe en la tabla users
-        const { data: userProfile } = await supabase
-          .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+      if (!user) {
+        console.log('No user authenticated')
+        setStatus({ tablesExist: false, userInDb: false, isAdmin: false })
+        return
+      }
 
-        if (userProfile) {
-          userInDb = true
-          isAdmin = userProfile.role === 'admin'
+      try {
+        // Primero verificar si podemos acceder a la tabla users
+        const { data: testQuery, error: testError } = await supabase
+          .from('users')
+          .select('id')
+          .limit(1)
+
+        // Si no hay error o el error no es de tabla inexistente, la tabla existe
+        tablesExist = !testError || (testError.code !== 'PGRST116' && !testError.message.includes('does not exist'))
+
+        console.log('Table check:', { testError, tablesExist })
+
+        if (tablesExist) {
+          // Verificar si el usuario existe en la tabla users
+          const { data: userProfiles, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+
+          console.log('User check:', { userProfiles, userError, userId: user.id })
+
+          if (userProfiles && userProfiles.length > 0 && !userError) {
+            const userProfile = userProfiles[0]
+            userInDb = true
+            isAdmin = userProfile.role === 'admin'
+            console.log('User profile:', userProfile)
+          } else if (userError) {
+            console.error('User query error:', userError)
+          }
         }
+      } catch (err) {
+        console.error('Error checking users table:', err)
+        tablesExist = false
       }
 
       setStatus({ tablesExist, userInDb, isAdmin })
