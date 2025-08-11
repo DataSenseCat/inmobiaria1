@@ -264,11 +264,11 @@ export default function AdminPage() {
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-2">
-              <Button size="sm" onClick={() => window.location.href = '/admin/properties/new'}>
+              <Button size="sm" onClick={() => navigate('/admin/properties/new')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nueva Propiedad
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => handleExportData()}>
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
