@@ -20,15 +20,23 @@ const propertySchema = z.object({
   city: z.string().min(1, 'La ciudad es requerida'),
   type: z.enum(['casa', 'departamento', 'ph', 'lote', 'local']),
   operation: z.enum(['venta', 'alquiler', 'temporal']),
-  price_usd: z.number().positive().optional(),
-  price_ars: z.number().positive().optional(),
-  rooms: z.number().int().min(0).optional(),
-  bathrooms: z.number().int().min(0).optional(),
-  area_covered: z.number().positive().optional(),
-  area_total: z.number().positive().optional(),
+  price_usd: z.number().positive().optional().or(z.literal(undefined)),
+  price_ars: z.number().positive().optional().or(z.literal(undefined)),
+  rooms: z.number().int().min(0).optional().or(z.literal(undefined)),
+  bathrooms: z.number().int().min(0).optional().or(z.literal(undefined)),
+  area_covered: z.number().positive().optional().or(z.literal(undefined)),
+  area_total: z.number().positive().optional().or(z.literal(undefined)),
   featured: z.boolean(),
   active: z.boolean(),
-})
+}).transform((data) => ({
+  ...data,
+  price_usd: data.price_usd || undefined,
+  price_ars: data.price_ars || undefined,
+  rooms: data.rooms || undefined,
+  bathrooms: data.bathrooms || undefined,
+  area_covered: data.area_covered || undefined,
+  area_total: data.area_total || undefined,
+}))
 
 type PropertyFormData = z.infer<typeof propertySchema>
 
