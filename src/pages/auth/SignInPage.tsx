@@ -10,7 +10,10 @@ import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react'
 
 export default function SignInPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const supabase = createClient()
+
+  const redirectTo = searchParams.get('redirectedFrom') || '/'
   
   const [loading, setLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
