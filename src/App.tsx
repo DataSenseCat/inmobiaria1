@@ -51,6 +51,7 @@ function App() {
         <Route path="/test-connection" element={<TestConnectionPage />} />
         <Route path="/debug-connection" element={<DebugConnectionPage />} />
         <Route path="/auth-debug" element={<AuthDebugPage />} />
+        <Route path="/demo-admin" element={<DemoAdminPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />
