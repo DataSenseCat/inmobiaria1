@@ -3,7 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { logError } from '@/lib/utils/errorUtils'
 import PropertyForm from '@/components/forms/PropertyForm'
+import SetupInstructions from '@/components/SetupInstructions'
 import { useSupabase } from '@/providers/SupabaseProvider'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { AlertCircle, User } from 'lucide-react'
 
 type PropertyFormData = {
   title: string
