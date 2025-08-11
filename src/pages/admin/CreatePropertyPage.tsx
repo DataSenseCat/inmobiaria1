@@ -60,7 +60,18 @@ export default function CreatePropertyPage() {
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'CreatePropertyPage.handleSubmit')
-      setError(`Error al crear la propiedad: ${errorMessage}`)
+
+      // Check if it's a table not found error
+      if (err instanceof Error && (
+        err.message.includes('relation') ||
+        err.message.includes('does not exist') ||
+        err.message.includes('PGRST116')
+      )) {
+        setError('Las tablas de la base de datos no están configuradas. Por favor contacta al administrador para configurar la base de datos.')
+      } else {
+        setError(`Error al crear la propiedad: ${errorMessage}`)
+      }
+
       console.error('Error creating property:', err)
     } finally {
       setLoading(false)
