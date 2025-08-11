@@ -1,4 +1,10 @@
-import { supabase } from '../src/lib/supabase/client'
+import { createClient } from '@supabase/supabase-js'
+
+// Direct configuration for Node.js environment
+const supabaseUrl = 'https://xtcdvnzcryshjwwggfrk.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh0Y2R2bnpjcnlzaGp3d2dnZnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ3OTE2NzAsImV4cCI6MjA3MDM2NzY3MH0.u-cwoiuT8xSg4fkFLuHw_GTmA9DI5xLPDhpHiGDS8MI'
+
+const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function seedDatabase() {
   console.log('🌱 Testing database connection...')
