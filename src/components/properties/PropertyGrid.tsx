@@ -1,4 +1,7 @@
+<<<<<<< HEAD
 import { useState, useEffect } from 'react'
+=======
+>>>>>>> 418b83323a0411d0ef8b9436d61c4a549d16b316
 import { supabase, testConnection } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
 import { Property } from '@/lib/supabase/types'
