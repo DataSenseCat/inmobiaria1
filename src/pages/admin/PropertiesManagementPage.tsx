@@ -82,8 +82,9 @@ export default function PropertiesManagementPage() {
       setProperties(prev => prev.filter(p => p.id !== propertyId))
       
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'PropertiesManagementPage.handleDeleteProperty')
-      alert(`Error al eliminar la propiedad: ${errorLog.message}`)
+      alert(`Error al eliminar la propiedad: ${errorMessage}`)
     }
   }
 
