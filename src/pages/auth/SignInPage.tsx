@@ -56,10 +56,10 @@ export default function SignInPage() {
           .eq('id', data.user.id)
           .single()
 
-        if (profile?.role === 'admin') {
+        if (profile?.role === 'admin' && redirectTo === '/') {
           navigate('/admin')
         } else {
-          navigate('/')
+          navigate(redirectTo)
         }
       }
     } catch (error: any) {
