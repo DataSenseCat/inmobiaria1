@@ -5,8 +5,8 @@ import { User, Database, Zap, ArrowRight, Copy } from 'lucide-react'
 
 export default function QuickStart() {
   const demoCredentials = {
-    email: 'admin@inmobiliaria.com',
-    password: 'admin123'
+    email: 'demo@example.com',
+    password: 'demo123456'
   }
 
   const copyCredentials = () => {
