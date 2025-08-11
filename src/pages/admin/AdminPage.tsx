@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { logError } from '@/lib/utils/errorUtils'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import AdminDiagnosis from '@/components/AdminDiagnosis'
 import { 
   Building, 
   Users, 
@@ -36,6 +38,8 @@ interface DashboardStats {
 }
 
 export default function AdminPage() {
+  const navigate = useNavigate()
+
   const [stats, setStats] = useState<DashboardStats>({
     totalProperties: 0,
     activeProperties: 0,
@@ -44,7 +48,7 @@ export default function AdminPage() {
     totalRevenue: 0,
     avgPropertyPrice: 0
   })
-  
+
   const [properties, setProperties] = useState<any[]>([])
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
@@ -53,6 +57,56 @@ export default function AdminPage() {
   useEffect(() => {
     fetchDashboardData()
   }, [])
+
+  const handleExportData = () => {
+    // Implement data export functionality
+    console.log('Exporting data...')
+    // For now, just show an alert
+    alert('Funcionalidad de exportación en desarrollo')
+  }
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta propiedad?')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', propertyId)
+
+      if (error) throw error
+
+      // Refresh data after deletion
+      fetchDashboardData()
+      alert('Propiedad eliminada exitosamente')
+    } catch (err) {
+      console.error('Error deleting property:', err)
+      alert('Error al eliminar la propiedad')
+    }
+  }
+
+  const handleViewProperty = (propertyId: string) => {
+    window.open(`/propiedad/${propertyId}`, '_blank')
+  }
+
+  const handleEditProperty = (propertyId: string) => {
+    navigate(`/admin/properties/edit/${propertyId}`)
+  }
+
+  const handleContactLead = (lead: any) => {
+    if (lead.phone) {
+      const message = `Hola ${lead.name}, me contacto sobre tu consulta: ${lead.message}`
+      const whatsappUrl = `https://wa.me/${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
+    } else if (lead.email) {
+      const subject = `Respuesta a tu consulta - Inmobiliaria Catamarca`
+      const body = `Hola ${lead.name},\n\nGracias por contactarnos. En relación a tu consulta: "${lead.message}"\n\nSaludos cordiales,\nInmobiliaria Catamarca`
+      const mailtoUrl = `mailto:${lead.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+      window.open(mailtoUrl)
+    }
+  }
 
   const fetchDashboardData = async () => {
     try {
@@ -260,11 +314,11 @@ export default function AdminPage() {
               </p>
             </div>
             <div className="mt-4 md:mt-0 flex space-x-2">
-              <Button size="sm" onClick={() => window.location.href = '/admin/properties/new'}>
+              <Button size="sm" onClick={() => navigate('/admin/properties/new')}>
                 <Plus className="w-4 h-4 mr-2" />
                 Nueva Propiedad
               </Button>
-              <Button variant="outline" size="sm">
+              <Button variant="outline" size="sm" onClick={() => handleExportData()}>
                 <Download className="w-4 h-4 mr-2" />
                 Exportar
               </Button>
@@ -284,6 +338,11 @@ export default function AdminPage() {
           </div>
         </div>
       )}
+
+      {/* Admin Diagnosis */}
+      <div className="container mx-auto px-4 py-4">
+        <AdminDiagnosis />
+      </div>
 
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
@@ -411,18 +470,26 @@ export default function AdminPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+                          onClick={() => handleViewProperty(property.id)}
+                          title="Ver propiedad"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.location.href = `/admin/properties/edit/${property.id}`}
+                          onClick={() => handleEditProperty(property.id)}
+                          title="Editar propiedad"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-600">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteProperty(property.id)}
+                          title="Eliminar propiedad"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
@@ -432,7 +499,7 @@ export default function AdminPage() {
                 <div className="mt-6 text-center">
                   <Button
                     variant="outline"
-                    onClick={() => window.location.href = '/admin/properties'}
+                    onClick={() => navigate('/admin/properties')}
                   >
                     Ver Todas las Propiedades
                   </Button>
@@ -475,13 +542,30 @@ export default function AdminPage() {
                         <p className="text-sm text-gray-600">{lead.message}</p>
                       </div>
                       <div className="flex space-x-2">
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleContactLead(lead)}
+                          title="Contactar por WhatsApp"
+                          disabled={!lead.phone}
+                        >
                           <Phone className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleContactLead(lead)}
+                          title="Enviar email"
+                          disabled={!lead.email}
+                        >
                           <Mail className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => alert('Funcionalidad de edición de leads en desarrollo')}
+                          title="Editar lead"
+                        >
                           <Edit className="w-4 h-4" />
                         </Button>
                       </div>
@@ -489,7 +573,12 @@ export default function AdminPage() {
                   ))}
                 </div>
                 <div className="mt-6 text-center">
-                  <Button variant="outline">Ver Todos los Leads</Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => alert('Funcionalidad de gestión de leads en desarrollo')}
+                  >
+                    Ver Todos los Leads
+                  </Button>
                 </div>
               </CardContent>
             </Card>

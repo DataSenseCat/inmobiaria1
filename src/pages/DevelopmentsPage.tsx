@@ -4,12 +4,13 @@ import { Development } from '@/lib/supabase/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  MapPin, 
-  Calendar, 
-  Building, 
-  DollarSign, 
-  Phone, 
+import SetupInstructions from '@/components/SetupInstructions'
+import {
+  MapPin,
+  Calendar,
+  Building,
+  DollarSign,
+  Phone,
   Mail,
   Clock,
   CheckCircle,
@@ -295,14 +296,26 @@ export default function DevelopmentsPage() {
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {error && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-orange-500 mr-2" />
-              <p className="text-orange-700 text-sm">
-                Hubo un problema al conectar con la base de datos. Mostrando emprendimientos de ejemplo.
-              </p>
+          <>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-orange-500 mr-2" />
+                  <p className="text-orange-700 text-sm">
+                    Hubo un problema al conectar con la base de datos. Mostrando emprendimientos de ejemplo.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                >
+                  Ver Solución
+                </Button>
+              </div>
             </div>
-          </div>
+            <SetupInstructions />
+          </>
         )}
 
         {developments.length === 0 ? (

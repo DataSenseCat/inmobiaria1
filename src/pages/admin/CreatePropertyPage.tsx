@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase/client'
 import { logError } from '@/lib/utils/errorUtils'
 import PropertyForm from '@/components/forms/PropertyForm'
+import AdminDiagnosis from '@/components/AdminDiagnosis'
 import { useSupabase } from '@/providers/SupabaseProvider'
 
 type PropertyFormData = {
@@ -85,17 +86,27 @@ export default function CreatePropertyPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
+        {/* Show admin diagnosis if there are authentication or permission issues */}
+        {(!user || error) && (
+          <div className="mb-6">
+            <AdminDiagnosis />
+          </div>
+        )}
+
         {error && (
           <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-700 text-sm">{error}</p>
           </div>
         )}
-        
-        <PropertyForm
-          onSubmit={handleSubmit}
-          onCancel={handleCancel}
-          loading={loading}
-        />
+
+        {/* Only show the form if user is authenticated */}
+        {user && (
+          <PropertyForm
+            onSubmit={handleSubmit}
+            onCancel={handleCancel}
+            loading={loading}
+          />
+        )}
       </div>
     </div>
   )

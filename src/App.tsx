@@ -32,6 +32,7 @@ import SetupAdminPage from './pages/setup/SetupAdminPage'
 import DebugPage from './pages/DebugPage'
 import TestConnectionPage from './pages/TestConnectionPage'
 import DebugConnectionPage from './pages/DebugConnectionPage'
+import DemoAdminPage from './pages/DemoAdminPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
@@ -50,6 +51,7 @@ function App() {
         <Route path="/test-connection" element={<TestConnectionPage />} />
         <Route path="/debug-connection" element={<DebugConnectionPage />} />
         <Route path="/auth-debug" element={<AuthDebugPage />} />
+        <Route path="/demo-admin" element={<DemoAdminPage />} />
         
         {/* Auth routes (no layout) */}
         <Route path="/auth/sign-in" element={<SignInPage />} />

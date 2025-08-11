@@ -1,13 +1,30 @@
 # Configuración de Usuario Administrador
 
 ## Problema
-No puedes acceder al panel de administración porque necesitas:
+No puedes acceder al panel de administración o crear/editar propiedades porque necesitas:
 1. Un usuario autenticado en Supabase Auth
 2. Un registro en la tabla `users` con `role = 'admin'`
+3. Las tablas de la base de datos configuradas correctamente
+4. Las políticas RLS (Row Level Security) configuradas
+
+## Diagnóstico Automático
+🆕 **Nuevo**: Ahora la aplicación incluye un diagnóstico automático que detecta y explica todos los problemas de permisos.
+
+### Dónde encontrar el diagnóstico:
+- Panel de administración: `/admin` (se muestra automáticamente)
+- Crear propiedades: `/admin/properties/new` (si hay problemas)
+- Página de emprendimientos: `/emprendimientos` (si faltan tablas)
 
 ## Solución Rápida
 
-### Opción 1: Usar la interfaz web
+### Opción 1: Usar el diagnóstico automático (RECOMENDADO)
+1. Ve a `/admin` en tu navegador
+2. El sistema mostrará un diagnóstico completo
+3. Copia el script SQL proporcionado
+4. Ejecuta el script en Supabase SQL Editor mientras estés autenticado
+5. Actualiza el diagnóstico para verificar
+
+### Opción 2: Usar la interfaz web original
 1. Ve a `/setup-admin` en tu navegador
 2. Sigue las instrucciones en pantalla
 3. La página te guiará automáticamente
