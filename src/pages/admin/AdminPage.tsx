@@ -58,6 +58,56 @@ export default function AdminPage() {
     fetchDashboardData()
   }, [])
 
+  const handleExportData = () => {
+    // Implement data export functionality
+    console.log('Exporting data...')
+    // For now, just show an alert
+    alert('Funcionalidad de exportación en desarrollo')
+  }
+
+  const handleDeleteProperty = async (propertyId: string) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar esta propiedad?')) {
+      return
+    }
+
+    try {
+      const { error } = await supabase
+        .from('properties')
+        .delete()
+        .eq('id', propertyId)
+
+      if (error) throw error
+
+      // Refresh data after deletion
+      fetchDashboardData()
+      alert('Propiedad eliminada exitosamente')
+    } catch (err) {
+      console.error('Error deleting property:', err)
+      alert('Error al eliminar la propiedad')
+    }
+  }
+
+  const handleViewProperty = (propertyId: string) => {
+    window.open(`/propiedad/${propertyId}`, '_blank')
+  }
+
+  const handleEditProperty = (propertyId: string) => {
+    navigate(`/admin/properties/edit/${propertyId}`)
+  }
+
+  const handleContactLead = (lead: any) => {
+    if (lead.phone) {
+      const message = `Hola ${lead.name}, me contacto sobre tu consulta: ${lead.message}`
+      const whatsappUrl = `https://wa.me/${lead.phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`
+      window.open(whatsappUrl, '_blank')
+    } else if (lead.email) {
+      const subject = `Respuesta a tu consulta - Inmobiliaria Catamarca`
+      const body = `Hola ${lead.name},\n\nGracias por contactarnos. En relación a tu consulta: "${lead.message}"\n\nSaludos cordiales,\nInmobiliaria Catamarca`
+      const mailtoUrl = `mailto:${lead.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`
+      window.open(mailtoUrl)
+    }
+  }
+
   const fetchDashboardData = async () => {
     try {
       setLoading(true)
