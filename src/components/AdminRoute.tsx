@@ -28,7 +28,12 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
         if (error || !profile || profile.role !== 'admin') {
           setIsAdmin(false)
-          navigate('/?error=access_denied')
+          // Redirigir a setup si hay error de usuario no encontrado
+          if (error?.code === 'PGRST116') {
+            navigate('/setup-admin?reason=user_not_found')
+          } else {
+            navigate('/setup-admin?reason=not_admin')
+          }
           return
         }
 
@@ -36,7 +41,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Error checking user role:', error)
         setIsAdmin(false)
-        navigate('/?error=role_check_failed')
+        navigate('/setup-admin?reason=error')
       } finally {
         setCheckingRole(false)
       }

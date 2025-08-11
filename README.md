@@ -18,18 +18,29 @@ Sistema integral de gestión inmobiliaria desarrollado con Next.js 14, integrado
 # 1. Clonar e instalar dependencias
 npm install
 
-# 2. Configurar variables de entorno
-cp .env.example .env.local
-# Editar .env.local con las credenciales reales
-
-# 3. Ejecutar migraciones en Supabase
-# (Copiar contenido de supabase/migrations/000_init.sql y ejecutar en Supabase SQL Editor)
-
-# 4. Iniciar servidor de desarrollo
+# 2. Iniciar servidor de desarrollo
 npm run dev
 
-# 5. Abrir http://localhost:3000
+# 3. Abrir http://localhost:3000
 ```
+
+## 👤 Configurar Usuario Administrador
+
+### Primera vez (Usuario Admin)
+1. Ve a `/setup-admin` en tu navegador
+2. Sigue las instrucciones automáticas
+3. La página te guiará para configurar Supabase y crear el admin
+
+### O manualmente:
+1. Regístrate en `/auth/sign-in`
+2. Ejecuta el script SQL de `scripts/setup-admin.sql` en Supabase
+3. Convierte tu usuario en admin:
+   ```sql
+   UPDATE users SET role = 'admin' WHERE email = 'tu-email@ejemplo.com';
+   ```
+4. Accede al panel en `/admin`
+
+**📋 Documentación completa**: `docs/ADMIN_SETUP.md`
 
 ## 📋 Configuración Completa
 

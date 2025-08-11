@@ -25,6 +25,7 @@ import AdminPage from './pages/admin/AdminPage'
 import ConfigAdminPage from './pages/setup/ConfigAdminPage'
 import ConfigDbPage from './pages/setup/ConfigDbPage'
 import DebugAdminPage from './pages/setup/DebugAdminPage'
+import SetupAdminPage from './pages/setup/SetupAdminPage'
 import DebugPage from './pages/DebugPage'
 import TestConnectionPage from './pages/TestConnectionPage'
 import DebugConnectionPage from './pages/DebugConnectionPage'
@@ -41,6 +42,7 @@ function App() {
         <Route path="/configurar-admin" element={<ConfigAdminPage />} />
         <Route path="/configurar-db" element={<ConfigDbPage />} />
         <Route path="/debug-admin" element={<DebugAdminPage />} />
+        <Route path="/setup-admin" element={<SetupAdminPage />} />
         <Route path="/debug" element={<DebugPage />} />
         <Route path="/test-connection" element={<TestConnectionPage />} />
         <Route path="/debug-connection" element={<DebugConnectionPage />} />
