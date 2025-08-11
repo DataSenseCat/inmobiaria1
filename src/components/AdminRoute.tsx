@@ -41,7 +41,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error('Error checking user role:', error)
         setIsAdmin(false)
-        navigate('/?error=role_check_failed')
+        navigate('/setup-admin?reason=error')
       } finally {
         setCheckingRole(false)
       }
