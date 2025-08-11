@@ -136,8 +136,9 @@ export default function PropertiesManagementPage() {
       )
       
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'PropertiesManagementPage.toggleFeaturedStatus')
-      alert(`Error al cambiar el estado destacado: ${errorLog.message}`)
+      alert(`Error al cambiar el estado destacado: ${errorMessage}`)
     }
   }
 
