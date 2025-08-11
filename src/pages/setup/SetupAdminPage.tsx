@@ -41,31 +41,38 @@ export default function SetupAdminPage() {
   const checkStatus = async () => {
     try {
       setLoading(true)
-      
-      // Verificar si la tabla users existe
-      const { data: tables } = await supabase
-        .from('information_schema.tables')
-        .select('table_name')
-        .eq('table_schema', 'public')
-        .eq('table_name', 'users')
 
-      const tablesExist = Boolean(tables && tables.length > 0)
-
+      // Verificar si la tabla users existe intentando hacer una consulta directa
+      let tablesExist = false
       let userInDb = false
       let isAdmin = false
 
-      if (tablesExist && user) {
-        // Verificar si el usuario existe en la tabla users
-        const { data: userProfile } = await supabase
+      try {
+        // Intentar acceder directamente a la tabla users
+        const { data: testQuery, error: testError } = await supabase
           .from('users')
-          .select('*')
-          .eq('id', user.id)
-          .single()
+          .select('id')
+          .limit(1)
 
-        if (userProfile) {
-          userInDb = true
-          isAdmin = userProfile.role === 'admin'
+        // Si no hay error, la tabla existe
+        tablesExist = !testError || testError.code !== 'PGRST116'
+
+        if (tablesExist && user) {
+          // Verificar si el usuario existe en la tabla users
+          const { data: userProfile, error: userError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', user.id)
+            .single()
+
+          if (userProfile && !userError) {
+            userInDb = true
+            isAdmin = userProfile.role === 'admin'
+          }
         }
+      } catch (err) {
+        console.error('Error checking users table:', err)
+        tablesExist = false
       }
 
       setStatus({ tablesExist, userInDb, isAdmin })
