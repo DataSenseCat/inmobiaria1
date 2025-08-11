@@ -499,7 +499,7 @@ export default function AdminPage() {
                 <div className="mt-6 text-center">
                   <Button
                     variant="outline"
-                    onClick={() => window.location.href = '/admin/properties'}
+                    onClick={() => navigate('/admin/properties')}
                   >
                     Ver Todas las Propiedades
                   </Button>
