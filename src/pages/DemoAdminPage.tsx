@@ -14,8 +14,8 @@ export default function DemoAdminPage() {
   const navigate = useNavigate()
 
   const [formData, setFormData] = useState({
-    email: 'admin@inmobiliaria.com',
-    password: 'admin123',
+    email: 'demo@example.com',
+    password: 'demo123456',
     fullName: 'Administrador Demo'
   })
 
