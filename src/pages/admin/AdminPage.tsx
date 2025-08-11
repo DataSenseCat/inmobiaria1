@@ -85,14 +85,14 @@ export default function AdminPage() {
       setLeads(sampleLeads)
 
       // Calculate stats
-      const activeProps = sampleProperties.filter(p => p.active).length
-      const todayLeads = sampleLeads.filter(lead => {
+      const activeProps = sampleProperties.filter((p: any) => p.active).length
+      const todayLeads = sampleLeads.filter((lead: any) => {
         const today = new Date().toDateString()
         const leadDate = new Date(lead.created_at).toDateString()
         return today === leadDate
       }).length
 
-      const avgPrice = sampleProperties.reduce((acc, p) => acc + (p.price_usd || 0), 0) / sampleProperties.length
+      const avgPrice = sampleProperties.reduce((acc: number, p: any) => acc + (p.price_usd || 0), 0) / sampleProperties.length
 
       setStats({
         totalProperties: sampleProperties.length,
