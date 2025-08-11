@@ -1,28 +1,16 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { supabase } from '@/lib/supabase/client'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { AlertCircle, CheckCircle, User, Copy, ExternalLink } from 'lucide-react'
+import { CheckCircle, Copy, ExternalLink, User, Database, ArrowRight } from 'lucide-react'
 
 export default function DemoAdminPage() {
-  const [loading, setLoading] = useState(false)
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
+  const [copiedItem, setCopiedItem] = useState('')
   const navigate = useNavigate()
 
-  const [credentials, setCredentials] = useState({
-    email: 'test@test.com',
-    password: 'test123456'
-  })
+  const sqlScript = `-- EJECUTA ESTE SCRIPT EN SUPABASE DESPUÉS DE AUTENTICARTE
 
-  // SQL script that the user needs to run
-  const sqlScript = `-- SCRIPT SIMPLE PARA CREAR ADMIN
--- Ejecuta esto en Supabase SQL Editor
-
--- 1. Crear tabla users si no existe
+-- 1. Crear tabla users
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     email TEXT UNIQUE NOT NULL,
@@ -33,7 +21,19 @@ CREATE TABLE IF NOT EXISTS users (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 2. Crear políticas básicas para properties
+-- 2. Hacer admin al usuario actual
+INSERT INTO users (id, email, role, full_name)
+SELECT 
+    auth.uid(),
+    auth.email(),
+    'admin',
+    'Administrador'
+ON CONFLICT (id) 
+DO UPDATE SET 
+    role = 'admin',
+    updated_at = NOW();
+
+-- 3. Configurar políticas para properties
 ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Admins can manage all properties" ON properties;
 CREATE POLICY "Admins can manage all properties" ON properties
@@ -41,87 +41,12 @@ CREATE POLICY "Admins can manage all properties" ON properties
         EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
     );
 
--- 3. Hacer admin al usuario actual (ejecuta esto DESPUÉS de autenticarte)
-INSERT INTO users (id, email, role, full_name)
-SELECT 
-    auth.uid(),
-    auth.email(),
-    'admin',
-    'Admin Usuario'
-ON CONFLICT (id) 
-DO UPDATE SET 
-    role = 'admin',
-    updated_at = NOW();
+-- ¡LISTO! Recarga la página del admin.`
 
--- ¡LISTO! Recarga la página después de ejecutar esto.`
-
-  const createQuickAdmin = async () => {
-    setLoading(true)
-    setError('')
-    setMessage('Iniciando sesión con credenciales de prueba...')
-
-    try {
-      // Step 1: Try to sign in with test credentials
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email: credentials.email,
-        password: credentials.password
-      })
-
-      if (signInError) {
-        if (signInError.message.includes('Invalid')) {
-          setMessage('Las credenciales no existen. Creando cuenta...')
-          
-          // Try to create the account
-          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-            email: credentials.email,
-            password: credentials.password,
-            options: {
-              data: {
-                full_name: 'Admin Usuario'
-              }
-            }
-          })
-
-          if (signUpError) {
-            throw new Error(`Error creando cuenta: ${signUpError.message}`)
-          }
-
-          setMessage('Cuenta creada. Inicia sesión manualmente y ejecuta el script SQL.')
-        } else {
-          throw signInError
-        }
-      } else {
-        setMessage('¡Autenticado exitosamente! Ahora ejecuta el script SQL para hacerte admin.')
-      }
-
-      setMessage(prev => prev + '\n\nAhora necesitas ejecutar el script SQL en Supabase para obtener permisos de admin.')
-
-    } catch (err: any) {
-      console.error('Error:', err)
-      setError(`Error: ${err.message}`)
-      setMessage('Si tienes problemas, sigue las instrucciones manuales de abajo.')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const goToAdminPanel = () => {
-    navigate('/admin')
-  }
-
-  const goToLogin = () => {
-    navigate('/auth/sign-in')
-  }
-
-  const copyScript = () => {
-    navigator.clipboard.writeText(sqlScript)
-    setMessage('¡Script SQL copiado! Pégalo en Supabase SQL Editor.')
-  }
-
-  const copyCredentials = () => {
-    const text = `Email: ${credentials.email}\nContraseña: ${credentials.password}`
+  const copyToClipboard = (text: string, itemName: string) => {
     navigator.clipboard.writeText(text)
-    setMessage('¡Credenciales copiadas!')
+    setCopiedItem(itemName)
+    setTimeout(() => setCopiedItem(''), 2000)
   }
 
   return (
@@ -130,132 +55,146 @@ DO UPDATE SET
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <User className="h-5 w-5" />
-            <span>Solución Rápida - Admin Demo</span>
+            <span>Guía Admin - 3 Pasos Simples</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           
-          {/* Status Messages */}
-          {error && (
-            <div className="bg-red-50 border border-red-200 rounded p-3">
-              <div className="flex items-center">
-                <AlertCircle className="h-4 w-4 text-red-500 mr-2" />
-                <p className="text-red-700 text-sm">{error}</p>
-              </div>
-            </div>
-          )}
+          <div className="bg-blue-50 border border-blue-200 rounded p-4">
+            <h3 className="font-bold text-blue-800 mb-2">🎯 OBJETIVO</h3>
+            <p className="text-blue-700">
+              Convertirte en administrador para poder crear, editar y eliminar propiedades. 
+              <strong> NO necesitas emails especiales ni configuraciones complejas.</strong>
+            </p>
+          </div>
 
-          {message && (
-            <div className="bg-blue-50 border border-blue-200 rounded p-3">
-              <div className="flex items-center">
-                <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
-                <p className="text-blue-700 text-sm whitespace-pre-line">{message}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Quick Solution */}
-          <div className="bg-green-50 border border-green-200 rounded p-4">
-            <h3 className="font-bold text-green-800 mb-3">🎯 SOLUCIÓN RÁPIDA (3 pasos)</h3>
-            
-            <div className="space-y-4">
-              {/* Step 1 */}
-              <div className="flex items-start space-x-3">
-                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-green-800">Autenticarse</h4>
-                  <p className="text-green-700 text-sm mb-2">Usa estas credenciales de prueba:</p>
-                  <div className="bg-white p-2 rounded border font-mono text-sm">
-                    <div><strong>Email:</strong> {credentials.email}</div>
-                    <div><strong>Contraseña:</strong> {credentials.password}</div>
-                  </div>
-                  <div className="flex space-x-2 mt-2">
-                    <Button size="sm" onClick={createQuickAdmin} disabled={loading}>
-                      {loading ? 'Procesando...' : 'Auto-Login'}
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={goToLogin}>
-                      Login Manual
-                    </Button>
-                    <Button size="sm" variant="outline" onClick={copyCredentials}>
-                      <Copy className="h-3 w-3 mr-1" />
-                      Copiar
-                    </Button>
-                  </div>
+          {/* Step 1 */}
+          <div className="bg-white border-2 border-green-200 rounded-lg p-6">
+            <div className="flex items-start space-x-4">
+              <div className="bg-green-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold">1</div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-green-800 mb-3">Crear Cuenta / Iniciar Sesión</h3>
+                <p className="text-green-700 mb-4">
+                  Usa <strong>TU PROPIO EMAIL</strong> (cualquier email que tengas). 
+                  No importa cuál uses, después el script te hará admin.
+                </p>
+                <div className="flex space-x-3">
+                  <Button 
+                    onClick={() => navigate('/auth/sign-in')}
+                    className="bg-green-600 hover:bg-green-700"
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Ir a Login/Registro
+                  </Button>
+                  <span className="flex items-center text-green-600 text-sm">
+                    ← Usa cualquier email que tengas
+                  </span>
                 </div>
               </div>
+            </div>
+          </div>
 
-              {/* Step 2 */}
-              <div className="flex items-start space-x-3">
-                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-green-800">Ejecutar Script SQL</h4>
-                  <p className="text-green-700 text-sm mb-2">Copia y ejecuta este script en Supabase SQL Editor:</p>
-                  <div className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-auto max-h-40 font-mono">
-                    {sqlScript}
-                  </div>
-                  <div className="flex space-x-2 mt-2">
-                    <Button size="sm" onClick={copyScript}>
-                      <Copy className="h-3 w-3 mr-1" />
-                      Copiar Script
-                    </Button>
-                    <Button 
-                      size="sm" 
-                      variant="outline"
-                      onClick={() => window.open('https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql', '_blank')}
-                    >
-                      <ExternalLink className="h-3 w-3 mr-1" />
-                      Abrir SQL Editor
-                    </Button>
-                  </div>
+          {/* Step 2 */}
+          <div className="bg-white border-2 border-blue-200 rounded-lg p-6">
+            <div className="flex items-start space-x-4">
+              <div className="bg-blue-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold">2</div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-blue-800 mb-3">Ejecutar Script SQL</h3>
+                <p className="text-blue-700 mb-4">
+                  Una vez que estés autenticado, ejecuta este script en Supabase:
+                </p>
+                
+                <div className="bg-gray-900 text-green-400 p-4 rounded text-sm font-mono overflow-auto max-h-64 mb-4 border">
+                  {sqlScript}
                 </div>
-              </div>
 
-              {/* Step 3 */}
-              <div className="flex items-start space-x-3">
-                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</div>
-                <div className="flex-1">
-                  <h4 className="font-semibold text-green-800">Probar Panel Admin</h4>
-                  <p className="text-green-700 text-sm mb-2">Después de ejecutar el script, accede al panel:</p>
-                  <Button onClick={goToAdminPanel}>
-                    Ir al Panel Admin
+                <div className="flex space-x-3">
+                  <Button 
+                    onClick={() => copyToClipboard(sqlScript, 'script')}
+                    variant="outline"
+                  >
+                    <Copy className="h-4 w-4 mr-2" />
+                    {copiedItem === 'script' ? '¡Copiado!' : 'Copiar Script'}
+                  </Button>
+                  <Button 
+                    onClick={() => window.open('https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql', '_blank')}
+                    variant="outline"
+                  >
+                    <ExternalLink className="h-4 w-4 mr-2" />
+                    Abrir SQL Editor
                   </Button>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Manual Instructions */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
-            <h3 className="font-bold text-yellow-800 mb-3">📋 INSTRUCCIONES MANUALES (si falla lo anterior)</h3>
-            <ol className="list-decimal list-inside space-y-2 text-yellow-700 text-sm">
-              <li>Ve a <a href="/auth/sign-in" className="underline">página de login</a></li>
-              <li>Crea una cuenta nueva o usa: {credentials.email} / {credentials.password}</li>
-              <li>Ve a <a href="https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql" target="_blank" className="underline">Supabase SQL Editor</a></li>
-              <li>Ejecuta el script SQL (usa el botón "Copiar Script")</li>
-              <li>Recarga <a href="/admin" className="underline">el panel admin</a></li>
-            </ol>
+          {/* Step 3 */}
+          <div className="bg-white border-2 border-purple-200 rounded-lg p-6">
+            <div className="flex items-start space-x-4">
+              <div className="bg-purple-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-lg font-bold">3</div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-purple-800 mb-3">Acceder al Panel Admin</h3>
+                <p className="text-purple-700 mb-4">
+                  Después de ejecutar el script, ya serás administrador. ¡Prueba el panel!
+                </p>
+                <Button 
+                  onClick={() => navigate('/admin')}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  <Database className="h-4 w-4 mr-2" />
+                  Ir al Panel Admin
+                </Button>
+              </div>
+            </div>
           </div>
 
-          {/* Quick Actions */}
-          <div className="flex flex-wrap gap-2 pt-4 border-t">
+          {/* Quick Instructions */}
+          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-4">
+            <h3 className="font-bold text-yellow-800 mb-3">⚡ INSTRUCCIONES RÁPIDAS</h3>
+            <div className="space-y-2 text-yellow-700 text-sm">
+              <div className="flex items-center space-x-2">
+                <ArrowRight className="h-4 w-4" />
+                <span>Ve a <strong>Login</strong> → Crea cuenta con tu email → Entra al sistema</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ArrowRight className="h-4 w-4" />
+                <span><strong>Copia el script SQL</strong> → Ve a <strong>Supabase SQL Editor</strong> → Pégalo y ejecuta (Ctrl+Enter)</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <ArrowRight className="h-4 w-4" />
+                <span>Ve al <strong>Panel Admin</strong> → ¡Ya puedes crear, editar y eliminar propiedades!</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Navigation Buttons */}
+          <div className="flex flex-wrap gap-3 pt-6 border-t">
             <Button variant="outline" onClick={() => navigate('/')}>
               🏠 Inicio
             </Button>
             <Button variant="outline" onClick={() => navigate('/auth/sign-in')}>
-              🔑 Login
+              🔑 Login/Registro
+            </Button>
+            <Button variant="outline" onClick={() => window.open('https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql', '_blank')}>
+              📝 SQL Editor
             </Button>
             <Button variant="outline" onClick={() => navigate('/admin')}>
-              ⚡ Panel Admin
-            </Button>
-            <Button variant="outline" onClick={() => window.location.reload()}>
-              🔄 Recargar
+              ⚙️ Panel Admin
             </Button>
           </div>
 
-          <div className="text-xs text-gray-500 bg-gray-100 p-3 rounded">
-            <strong>IMPORTANTE:</strong> Esta es una solución simplificada para demostración. 
-            El problema principal es que Supabase está rechazando emails o hay restricciones de dominio. 
-            Esta solución omite la complejidad innecesaria y te da acceso directo al panel admin.
+          {/* Final Note */}
+          <div className="bg-green-50 border border-green-300 rounded p-4">
+            <div className="flex items-start space-x-2">
+              <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-green-800">¿Por qué funciona esto?</h4>
+                <p className="text-green-700 text-sm">
+                  El script SQL toma tu usuario actual (cualquiera que uses) y le da permisos de administrador. 
+                  No necesitas emails específicos - funciona con CUALQUIER cuenta que crees.
+                </p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
