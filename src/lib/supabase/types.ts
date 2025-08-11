@@ -107,6 +107,36 @@ export interface Favorite {
   property?: Property
 }
 
+export interface User {
+  id: string
+  email: string
+  full_name?: string
+  phone?: string
+  role: 'admin' | 'agent' | 'user'
+  created_at: string
+  updated_at?: string
+  last_sign_in_at?: string
+}
+
+export interface SiteConfig {
+  id?: string
+  siteName: string
+  siteDescription: string
+  contactEmail: string
+  contactPhone: string
+  address: string
+  whatsappNumber: string
+  currency: 'USD' | 'ARS'
+  language: 'es' | 'en'
+  theme: 'light' | 'dark' | 'auto'
+  emailNotifications: boolean
+  smsNotifications: boolean
+  autoBackup: boolean
+  maintenanceMode: boolean
+  created_at?: string
+  updated_at?: string
+}
+
 // Database types
 export interface Database {
   public: {
