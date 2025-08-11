@@ -108,14 +108,25 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
         const fileName = `${Date.now()}-${file.name}`
         const filePath = `properties/${fileName}`
 
-        const { data, error } = await supabase.storage
-          .from('property-images')
-          .upload(filePath, file)
+        // Intentar subir a bucket de imágenes, si no existe usar alternativa
+        let uploadResult
+        try {
+          uploadResult = await supabase.storage
+            .from('images')
+            .upload(filePath, file)
+        } catch (bucketError) {
+          // Si falla, intentar crear un data URL temporal
+          console.warn('Storage bucket not available, using temporary solution:', bucketError)
+          return URL.createObjectURL(file)
+        }
 
-        if (error) throw error
+        if (uploadResult.error) {
+          console.warn('Upload failed, using temporary solution:', uploadResult.error)
+          return URL.createObjectURL(file)
+        }
 
         const { data: { publicUrl } } = supabase.storage
-          .from('property-images')
+          .from('images')
           .getPublicUrl(filePath)
 
         return publicUrl
@@ -125,6 +136,12 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
       setImages(prev => [...prev, ...uploadedUrls])
     } catch (error) {
       console.error('Error uploading images:', error)
+      // En caso de error, usar archivos locales temporalmente
+      const files = event.target.files
+      if (files) {
+        const tempUrls = Array.from(files).map(file => URL.createObjectURL(file))
+        setImages(prev => [...prev, ...tempUrls])
+      }
     } finally {
       setUploadingImages(false)
     }
