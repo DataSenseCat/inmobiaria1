@@ -49,7 +49,7 @@ export default function SetupAdminPage() {
         .eq('table_schema', 'public')
         .eq('table_name', 'users')
 
-      const tablesExist = tables && tables.length > 0
+      const tablesExist = Boolean(tables && tables.length > 0)
 
       let userInDb = false
       let isAdmin = false
