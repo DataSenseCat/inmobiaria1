@@ -141,7 +141,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
             </CardContent>
           </Card>
 
-          <QuickAdminSetup />
+          <QuickStart />
         </div>
       </div>
     )
