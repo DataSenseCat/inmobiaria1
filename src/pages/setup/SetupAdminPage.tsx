@@ -47,27 +47,40 @@ export default function SetupAdminPage() {
       let userInDb = false
       let isAdmin = false
 
+      if (!user) {
+        console.log('No user authenticated')
+        setStatus({ tablesExist: false, userInDb: false, isAdmin: false })
+        return
+      }
+
       try {
-        // Intentar acceder directamente a la tabla users
+        // Primero verificar si podemos acceder a la tabla users
         const { data: testQuery, error: testError } = await supabase
           .from('users')
           .select('id')
           .limit(1)
 
-        // Si no hay error, la tabla existe
-        tablesExist = !testError || testError.code !== 'PGRST116'
+        // Si no hay error o el error no es de tabla inexistente, la tabla existe
+        tablesExist = !testError || (testError.code !== 'PGRST116' && !testError.message.includes('does not exist'))
 
-        if (tablesExist && user) {
+        console.log('Table check:', { testError, tablesExist })
+
+        if (tablesExist) {
           // Verificar si el usuario existe en la tabla users
-          const { data: userProfile, error: userError } = await supabase
+          const { data: userProfiles, error: userError } = await supabase
             .from('users')
             .select('*')
             .eq('id', user.id)
-            .single()
 
-          if (userProfile && !userError) {
+          console.log('User check:', { userProfiles, userError, userId: user.id })
+
+          if (userProfiles && userProfiles.length > 0 && !userError) {
+            const userProfile = userProfiles[0]
             userInDb = true
             isAdmin = userProfile.role === 'admin'
+            console.log('User profile:', userProfile)
+          } else if (userError) {
+            console.error('User query error:', userError)
           }
         }
       } catch (err) {
