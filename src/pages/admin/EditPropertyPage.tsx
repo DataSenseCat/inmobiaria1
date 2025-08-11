@@ -100,8 +100,9 @@ export default function EditPropertyPage() {
       navigate('/admin?success=property_updated')
       
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'EditPropertyPage.handleSubmit')
-      setError(`Error al actualizar la propiedad: ${errorLog.message}`)
+      setError(`Error al actualizar la propiedad: ${errorMessage}`)
       console.error('Error updating property:', err)
     } finally {
       setSaving(false)
