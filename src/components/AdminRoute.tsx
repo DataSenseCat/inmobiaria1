@@ -75,7 +75,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8">
-          <Card className="max-w-2xl mx-auto border-red-200 bg-red-50">
+          <Card className="max-w-4xl mx-auto border-red-200 bg-red-50 mb-6">
             <CardHeader>
               <CardTitle className="flex items-center space-x-2 text-red-800">
                 <User className="h-5 w-5" />
@@ -84,7 +84,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-red-700">
-                Necesitas estar autenticado para acceder a esta página.
+                Necesitas estar autenticado para acceder a <strong>{location.pathname}</strong>.
               </p>
               <div className="flex space-x-2">
                 <Button
@@ -107,6 +107,8 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
               </div>
             </CardContent>
           </Card>
+
+          <QuickStart />
         </div>
       </div>
     )
