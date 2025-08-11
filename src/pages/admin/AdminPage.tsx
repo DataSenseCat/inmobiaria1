@@ -470,18 +470,26 @@ export default function AdminPage() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.open(`/propiedad/${property.id}`, '_blank')}
+                          onClick={() => handleViewProperty(property.id)}
+                          title="Ver propiedad"
                         >
                           <Eye className="w-4 h-4" />
                         </Button>
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => window.location.href = `/admin/properties/edit/${property.id}`}
+                          onClick={() => handleEditProperty(property.id)}
+                          title="Editar propiedad"
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
-                        <Button variant="outline" size="sm" className="text-red-600">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-red-600 hover:bg-red-50"
+                          onClick={() => handleDeleteProperty(property.id)}
+                          title="Eliminar propiedad"
+                        >
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
