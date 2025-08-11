@@ -32,6 +32,7 @@ import SetupAdminPage from './pages/setup/SetupAdminPage'
 import DebugPage from './pages/DebugPage'
 import TestConnectionPage from './pages/TestConnectionPage'
 import DebugConnectionPage from './pages/DebugConnectionPage'
+import DemoAdminPage from './pages/DemoAdminPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
