@@ -54,7 +54,7 @@ CREATE TRIGGER update_leads_updated_at
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
 
--- Políticas para users
+-- Políticas para users (eliminar si existen para evitar errores)
 DROP POLICY IF EXISTS "Users can view own profile" ON users;
 CREATE POLICY "Users can view own profile" ON users
     FOR SELECT
@@ -65,7 +65,7 @@ CREATE POLICY "Admins can view all users" ON users
     FOR SELECT
     USING (
         EXISTS (
-            SELECT 1 FROM users 
+            SELECT 1 FROM users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -75,7 +75,7 @@ CREATE POLICY "Admins can modify users" ON users
     FOR ALL
     USING (
         EXISTS (
-            SELECT 1 FROM users 
+            SELECT 1 FROM users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
