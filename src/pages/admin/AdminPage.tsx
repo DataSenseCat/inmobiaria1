@@ -218,7 +218,10 @@ export default function AdminPage() {
     return labels[status as keyof typeof labels] || status
   }
 
-  const formatPrice = (price: number, operation: string) => {
+  const formatPrice = (price: number | null | undefined, operation: string) => {
+    if (price === null || price === undefined) {
+      return 'Precio a consultar'
+    }
     const currency = operation === 'venta' ? 'USD' : 'USD/mes'
     return `${currency} ${price.toLocaleString()}`
   }
