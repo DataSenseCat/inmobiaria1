@@ -54,8 +54,9 @@ export default function PropertiesManagementPage() {
 
       setProperties(propertiesData || [])
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'PropertiesManagementPage.fetchProperties')
-      setError(`Error al cargar propiedades: ${errorLog.message}`)
+      setError(`Error al cargar propiedades: ${errorMessage}`)
       console.error('Error fetching properties:', err)
     } finally {
       setLoading(false)
