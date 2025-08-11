@@ -10,20 +10,22 @@ async function seedDatabase() {
   console.log('🌱 Testing database connection...')
   
   try {
-    // Test 1: Check if users table exists and user is admin
-    const { data: adminUser, error: adminError } = await supabase
+    // Test 1: Check if users table exists and user is admin (without single())
+    const { data: adminUsers, error: adminError } = await supabase
       .from('users')
       .select('*')
       .eq('email', 'insumoscatamarca@gmail.com')
-      .single()
 
     if (adminError) {
       console.error('❌ Error checking admin user:', adminError.message)
     } else {
-      console.log('✅ Admin user found:')
-      console.log(`   - Email: ${adminUser.email}`)
-      console.log(`   - Role: ${adminUser.role}`)
-      console.log(`   - ID: ${adminUser.id}`)
+      console.log(`✅ Found ${adminUsers?.length || 0} users with email insumoscatamarca@gmail.com`)
+      if (adminUsers && adminUsers.length > 0) {
+        const adminUser = adminUsers[0]
+        console.log(`   - Email: ${adminUser.email}`)
+        console.log(`   - Role: ${adminUser.role}`)
+        console.log(`   - ID: ${adminUser.id}`)
+      }
     }
 
     // Test 2: Check if basic tables exist
