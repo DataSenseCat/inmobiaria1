@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AlertCircle, CheckCircle, User } from 'lucide-react'
+import { AlertCircle, CheckCircle, User, RefreshCw, Copy } from 'lucide-react'
 
 export default function DemoAdminPage() {
   const [loading, setLoading] = useState(false)
@@ -19,173 +19,183 @@ export default function DemoAdminPage() {
     fullName: 'Administrador Demo'
   })
 
+  // Predefined demo accounts to try
+  const demoAccounts = [
+    { email: 'demo@example.com', password: 'demo123456' },
+    { email: 'test@test.com', password: 'test123456' },
+    { email: 'admin@test.com', password: 'admin123456' }
+  ]
+
+  const generateRandomEmail = () => {
+    const randomString = Math.random().toString(36).substr(2, 9)
+    return `demo${randomString}@example.com`
+  }
+
   const createDemoAdmin = async () => {
     setLoading(true)
     setError('')
     setMessage('')
 
-    try {
-      // Step 1: Create user in Supabase Auth
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName
+    // List of emails to try (current form data + predefined accounts + random)
+    const emailsToTry = [
+      formData.email,
+      ...demoAccounts.map(acc => acc.email),
+      generateRandomEmail()
+    ]
+
+    let successfulEmail = ''
+    let successfulPassword = formData.password
+
+    for (let i = 0; i < emailsToTry.length; i++) {
+      const currentEmail = emailsToTry[i]
+      
+      // Use the password from predefined accounts if available
+      const accountMatch = demoAccounts.find(acc => acc.email === currentEmail)
+      const currentPassword = accountMatch ? accountMatch.password : formData.password
+      
+      try {
+        setMessage(`Intentando crear usuario ${i + 1}/${emailsToTry.length}: ${currentEmail}`)
+        
+        // Try to create user
+        const { data: authData, error: authError } = await supabase.auth.signUp({
+          email: currentEmail,
+          password: currentPassword,
+          options: {
+            data: {
+              full_name: formData.fullName
+            }
           }
-        }
-      })
+        })
 
-      if (authError) {
-        // If user already exists, try to sign in
-        if (authError.message.includes('already')) {
-          const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-            email: formData.email,
-            password: formData.password
-          })
+        if (authError) {
+          // If user already exists, try to sign in
+          if (authError.message.includes('already') || authError.message.includes('registered')) {
+            setMessage(`Usuario ${currentEmail} ya existe, iniciando sesión...`)
+            
+            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+              email: currentEmail,
+              password: currentPassword
+            })
 
-          if (signInError) throw signInError
-          
-          setMessage('Usuario ya existe, iniciando sesión...')
-          
-          // Check if user is already admin
-          const { data: existingProfile } = await supabase
-            .from('users')
-            .select('role')
-            .eq('id', signInData.user.id)
-            .single()
-
-          if (existingProfile?.role === 'admin') {
-            setMessage('Ya eres administrador. Redirigiendo...')
-            setTimeout(() => navigate('/admin'), 2000)
-            return
+            if (signInError) {
+              // If sign in fails, try next email
+              if (i < emailsToTry.length - 1) {
+                setMessage(`Error al iniciar sesión con ${currentEmail}, probando siguiente...`)
+                continue
+              }
+              throw signInError
+            }
+            
+            successfulEmail = currentEmail
+            successfulPassword = currentPassword
+            break
+            
+          } else if (authError.message.includes('invalid') || authError.message.includes('not allowed')) {
+            // If email is invalid or not allowed, try next one
+            if (i < emailsToTry.length - 1) {
+              setMessage(`Email ${currentEmail} no permitido, probando siguiente...`)
+              continue
+            }
+            throw new Error(`Todos los emails fueron rechazados. Error: ${authError.message}`)
+          } else {
+            throw authError
           }
         } else {
-          throw authError
+          // Success creating new user
+          successfulEmail = currentEmail
+          successfulPassword = currentPassword
+          setMessage(`Usuario creado exitosamente: ${currentEmail}`)
+          break
         }
+      } catch (err: any) {
+        if (i < emailsToTry.length - 1) {
+          setMessage(`Error con ${currentEmail}: ${err.message}. Probando siguiente...`)
+          continue
+        }
+        // If this is the last email and it failed, throw the error
+        throw err
+      }
+    }
+
+    if (!successfulEmail) {
+      throw new Error('No se pudo crear ningún usuario demo')
+    }
+
+    // Update form data with successful credentials
+    setFormData(prev => ({ 
+      ...prev, 
+      email: successfulEmail,
+      password: successfulPassword
+    }))
+
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (!user) {
+        throw new Error('No se pudo obtener el usuario autenticado')
       }
 
-      const userId = authData?.user?.id || (await supabase.auth.getUser()).data.user?.id
+      setMessage('Configurando permisos de administrador...')
 
-      if (!userId) {
-        throw new Error('No se pudo obtener el ID del usuario')
-      }
-
-      // Step 2: Create/update user profile as admin
+      // Create/update user profile as admin
       const { error: profileError } = await supabase
         .from('users')
         .upsert({
-          id: userId,
-          email: formData.email,
+          id: user.id,
+          email: successfulEmail,
           full_name: formData.fullName,
           role: 'admin'
         })
 
-      if (profileError) throw profileError
-
-      setMessage('¡Administrador creado exitosamente! Redirigiendo al panel...')
-      
-      // Redirect to admin panel after short delay
-      setTimeout(() => {
-        navigate('/admin')
-      }, 2000)
+      if (profileError) {
+        console.warn('Error creating user profile:', profileError)
+        setMessage('Usuario creado, pero hubo un problema configurando permisos. Ejecuta el script SQL para completar la configuración.')
+      } else {
+        setMessage('¡Administrador creado exitosamente! Redirigiendo al panel...')
+        
+        // Redirect to admin panel after delay
+        setTimeout(() => {
+          navigate('/admin')
+        }, 2000)
+        
+        return // Exit function here on success
+      }
 
     } catch (err: any) {
       console.error('Error creating demo admin:', err)
-      setError(err.message || 'Error al crear administrador')
+      setError(`Error: ${err.message || 'Error desconocido'}`)
     } finally {
       setLoading(false)
     }
   }
 
-  const runQuickSetup = async () => {
-    setLoading(true)
-    setError('')
-    setMessage('Ejecutando configuración completa...')
+  const copyCredentials = () => {
+    const text = `Email: ${formData.email}\nContraseña: ${formData.password}`
+    navigator.clipboard.writeText(text)
+  }
 
-    try {
-      // Execute the setup SQL
-      const setupSQL = `
-        -- Create users table if not exists
-        CREATE TABLE IF NOT EXISTS users (
-            id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
-            email TEXT UNIQUE NOT NULL,
-            full_name TEXT,
-            phone TEXT,
-            role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'agent', 'user')),
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-
-        -- Create developments table if not exists
-        CREATE TABLE IF NOT EXISTS developments (
-            id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-            name TEXT NOT NULL,
-            description TEXT,
-            address TEXT,
-            city TEXT NOT NULL,
-            total_units INTEGER,
-            available_units INTEGER,
-            price_from DECIMAL,
-            price_to DECIMAL,
-            delivery_date DATE,
-            status TEXT DEFAULT 'planning' CHECK (status IN ('planning', 'construction', 'completed', 'delivered')),
-            featured BOOLEAN DEFAULT false,
-            active BOOLEAN DEFAULT true,
-            agent_id UUID REFERENCES users(id),
-            created_at TIMESTAMPTZ DEFAULT NOW(),
-            updated_at TIMESTAMPTZ DEFAULT NOW()
-        );
-
-        -- Enable RLS
-        ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-        ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
-        ALTER TABLE developments ENABLE ROW LEVEL SECURITY;
-
-        -- Create policies
-        DROP POLICY IF EXISTS "Admins can manage all properties" ON properties;
-        CREATE POLICY "Admins can manage all properties" ON properties
-            FOR ALL USING (
-                EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-            );
-
-        DROP POLICY IF EXISTS "Developments are viewable by everyone" ON developments;
-        DROP POLICY IF EXISTS "Admins can manage developments" ON developments;
-        CREATE POLICY "Developments are viewable by everyone" ON developments
-            FOR SELECT USING (active = true);
-        CREATE POLICY "Admins can manage developments" ON developments
-            FOR ALL USING (
-                EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
-            );
-      `
-
-      // Note: We can't execute this SQL from the frontend, so we'll show instructions
-      setMessage(`
-        Configuración preparada. Por favor:
-        1. Ve a Supabase SQL Editor
-        2. Ejecuta el script que aparece en el panel admin
-        3. Luego usa el botón "Crear Admin Demo"
-      `)
-
-    } catch (err: any) {
-      setError(err.message || 'Error en configuración')
-    } finally {
-      setLoading(false)
-    }
+  const tryPredefinedAccount = (account: typeof demoAccounts[0]) => {
+    setFormData(prev => ({
+      ...prev,
+      email: account.email,
+      password: account.password
+    }))
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-2xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <User className="h-5 w-5" />
             <span>Demo Admin - Crear Administrador</span>
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
           <p className="text-sm text-gray-600">
-            Esta página te permite crear un usuario administrador de demostración para probar todas las funcionalidades.
+            Esta página crea un usuario administrador de demostración. Si un email falla, 
+            automáticamente probará con otros emails hasta encontrar uno que funcione.
           </p>
 
           {error && (
@@ -206,68 +216,110 @@ export default function DemoAdminPage() {
             </div>
           )}
 
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({...formData, email: e.target.value})}
-              />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-3">
+              <h3 className="font-semibold">Configuración Actual</h3>
+              <div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({...formData, email: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="password">Contraseña</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({...formData, password: e.target.value})}
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="fullName">Nombre Completo</Label>
+                <Input
+                  id="fullName"
+                  value={formData.fullName}
+                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
+                />
+              </div>
             </div>
 
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <Input
-                id="password"
-                type="password"
-                value={formData.password}
-                onChange={(e) => setFormData({...formData, password: e.target.value})}
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="fullName">Nombre Completo</Label>
-              <Input
-                id="fullName"
-                value={formData.fullName}
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-              />
+            <div className="space-y-3">
+              <h3 className="font-semibold">Cuentas Demo Predefinidas</h3>
+              <p className="text-xs text-gray-500">Haz clic para usar estas credenciales probadas:</p>
+              {demoAccounts.map((account, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  className="w-full text-left justify-start"
+                  onClick={() => tryPredefinedAccount(account)}
+                >
+                  <div className="text-xs">
+                    <div>{account.email}</div>
+                    <div className="text-gray-500">{account.password}</div>
+                  </div>
+                </Button>
+              ))}
             </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <Button 
               onClick={createDemoAdmin} 
               disabled={loading}
               className="w-full"
             >
-              {loading ? 'Creando...' : 'Crear Admin Demo'}
+              {loading ? (
+                <>
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                  Creando Admin Demo...
+                </>
+              ) : (
+                'Crear Admin Demo'
+              )}
             </Button>
 
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/auth/sign-in')}
-              className="w-full"
-            >
-              Ir a Login Normal
-            </Button>
-
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/')}
-              className="w-full"
-            >
-              Volver al Inicio
-            </Button>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/auth/sign-in')}
+              >
+                Login Normal
+              </Button>
+              
+              <Button 
+                variant="outline"
+                onClick={copyCredentials}
+              >
+                <Copy className="h-4 w-4 mr-2" />
+                Copiar Credenciales
+              </Button>
+              
+              <Button 
+                variant="outline"
+                onClick={() => navigate('/')}
+              >
+                Volver al Inicio
+              </Button>
+            </div>
           </div>
 
           <div className="border-t pt-4">
-            <p className="text-xs text-gray-500">
-              <strong>Nota:</strong> Esta funcionalidad es solo para demostración. 
-              En producción, los administradores deben crearse de forma segura.
-            </p>
+            <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+              <h4 className="font-semibold text-yellow-800 mb-2">Información Importante:</h4>
+              <ul className="text-xs text-yellow-700 space-y-1">
+                <li>• Si un email es rechazado, se probará automáticamente con otros</li>
+                <li>• Las credenciales exitosas se mostrarán para uso futuro</li>
+                <li>• Esta funcionalidad es solo para demostración y desarrollo</li>
+                <li>• En producción, los administradores deben crearse de forma segura</li>
+              </ul>
+            </div>
           </div>
         </CardContent>
       </Card>
