@@ -364,11 +364,53 @@ export default function ConfigAdminPage() {
     setError(null)
 
     try {
-      // This would run the initialization SQL
-      setSuccess('Base de datos inicializada. Recarga la página para ver los cambios.')
-      setTimeout(() => window.location.reload(), 2000)
+      // Create users table if not exists
+      const { error: usersError } = await supabase.rpc('exec_sql', {
+        sql: `
+          CREATE TABLE IF NOT EXISTS users (
+              id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+              email TEXT UNIQUE NOT NULL,
+              full_name TEXT,
+              phone TEXT,
+              role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'agent', 'user')),
+              created_at TIMESTAMPTZ DEFAULT NOW(),
+              updated_at TIMESTAMPTZ DEFAULT NOW()
+          );
+        `
+      })
+
+      // Create site_config table if not exists
+      const { error: configError } = await supabase.rpc('exec_sql', {
+        sql: `
+          CREATE TABLE IF NOT EXISTS site_config (
+              id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+              siteName TEXT DEFAULT 'Inmobiliaria Catamarca',
+              siteDescription TEXT DEFAULT 'Tu inmobiliaria de confianza en Catamarca',
+              contactEmail TEXT DEFAULT 'contacto@inmobiliariacatamarca.com',
+              contactPhone TEXT DEFAULT '+54 383 456-7890',
+              address TEXT DEFAULT 'San Fernando del Valle de Catamarca, Argentina',
+              whatsappNumber TEXT DEFAULT '+54 9 383 456-7890',
+              currency TEXT DEFAULT 'USD' CHECK (currency IN ('USD', 'ARS')),
+              language TEXT DEFAULT 'es' CHECK (language IN ('es', 'en')),
+              theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark', 'auto')),
+              emailNotifications BOOLEAN DEFAULT true,
+              smsNotifications BOOLEAN DEFAULT false,
+              autoBackup BOOLEAN DEFAULT true,
+              maintenanceMode BOOLEAN DEFAULT false,
+              created_at TIMESTAMPTZ DEFAULT NOW(),
+              updated_at TIMESTAMPTZ DEFAULT NOW()
+          );
+        `
+      })
+
+      if (usersError || configError) {
+        throw new Error('Error creando tablas de administración')
+      }
+
+      setSuccess('Tablas de administración creadas exitosamente. Por favor ejecuta el script completo en Supabase SQL Editor para configuraciones avanzadas.')
+      setTimeout(() => window.location.reload(), 3000)
     } catch (err: any) {
-      setError(err.message || 'Error al inicializar base de datos')
+      setError(`Error al inicializar: ${err.message}. Por favor ejecuta manualmente el script SQL en Supabase.`)
     } finally {
       setSaving(false)
     }
