@@ -332,7 +332,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         id="rooms"
                         type="number"
                         min="0"
-                        {...register('rooms', { valueAsNumber: true })}
+                        {...register('rooms', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Número de habitaciones"
                       />
                     </div>
@@ -343,7 +346,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         id="bathrooms"
                         type="number"
                         min="0"
-                        {...register('bathrooms', { valueAsNumber: true })}
+                        {...register('bathrooms', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Número de baños"
                       />
                     </div>
@@ -359,7 +365,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         type="number"
                         min="0"
                         step="0.1"
-                        {...register('area_covered', { valueAsNumber: true })}
+                        {...register('area_covered', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Metros cuadrados cubiertos"
                       />
                     </div>
@@ -372,7 +381,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="0.1"
-                      {...register('area_total', { valueAsNumber: true })}
+                      {...register('area_total', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Metros cuadrados totales"
                     />
                   </div>
@@ -398,7 +410,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="1"
-                      {...register('price_usd', { valueAsNumber: true })}
+                      {...register('price_usd', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Precio en dólares"
                     />
                   </div>
@@ -412,7 +427,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="1"
-                      {...register('price_ars', { valueAsNumber: true })}
+                      {...register('price_ars', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Precio en pesos"
                     />
                   </div>
