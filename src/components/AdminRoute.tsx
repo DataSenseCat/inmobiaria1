@@ -28,7 +28,12 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
 
         if (error || !profile || profile.role !== 'admin') {
           setIsAdmin(false)
-          navigate('/?error=access_denied')
+          // Redirigir a setup si hay error de usuario no encontrado
+          if (error?.code === 'PGRST116') {
+            navigate('/setup-admin?reason=user_not_found')
+          } else {
+            navigate('/setup-admin?reason=not_admin')
+          }
           return
         }
 
