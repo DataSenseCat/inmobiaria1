@@ -79,6 +79,21 @@ function App() {
               <AdminPage />
             </AdminRoute>
           } />
+          <Route path="admin/properties" element={
+            <AdminRoute>
+              <PropertiesManagementPage />
+            </AdminRoute>
+          } />
+          <Route path="admin/properties/new" element={
+            <AdminRoute>
+              <CreatePropertyPage />
+            </AdminRoute>
+          } />
+          <Route path="admin/properties/edit/:id" element={
+            <AdminRoute>
+              <EditPropertyPage />
+            </AdminRoute>
+          } />
           
           {/* Builder.io dynamic pages */}
           <Route path="*" element={<BuilderPage />} />
