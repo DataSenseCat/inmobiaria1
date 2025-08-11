@@ -271,7 +271,7 @@ export default function Header() {
 
                 {user && !isAdmin && (
                   <Link
-                    to="/configurar-admin"
+                    to="/setup-admin"
                     className="flex items-center space-x-2 text-orange-600 hover:text-orange-800 font-medium"
                     onClick={() => setMobileMenuOpen(false)}
                   >
