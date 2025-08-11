@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { createClient } from '@/lib/supabase/client'
+import { supabase } from '@/lib/supabase/client'
 import { Eye, EyeOff, Mail, Lock, User, Phone } from 'lucide-react'
 
 export default function SignInPage() {
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
-  const supabase = createClient()
+  // Use the imported supabase client
 
   const redirectTo = searchParams.get('redirectedFrom') || '/'
   
