@@ -38,6 +38,8 @@ interface DashboardStats {
 }
 
 export default function AdminPage() {
+  const navigate = useNavigate()
+
   const [stats, setStats] = useState<DashboardStats>({
     totalProperties: 0,
     activeProperties: 0,
@@ -46,7 +48,7 @@ export default function AdminPage() {
     totalRevenue: 0,
     avgPropertyPrice: 0
   })
-  
+
   const [properties, setProperties] = useState<any[]>([])
   const [leads, setLeads] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
