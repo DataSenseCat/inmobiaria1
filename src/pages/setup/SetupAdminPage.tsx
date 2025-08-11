@@ -143,17 +143,55 @@ CREATE TABLE IF NOT EXISTS users (
 -- 2. Configurar RLS
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
 
--- 3. Crear políticas
+-- 3. Crear políticas (eliminar si existen para evitar errores)
+DROP POLICY IF EXISTS "Users can view own profile" ON users;
 CREATE POLICY "Users can view own profile" ON users
     FOR SELECT USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Admins can view all users" ON users;
 CREATE POLICY "Admins can view all users" ON users
     FOR SELECT USING (
         EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
     );
 
--- 4. Convertir tu usuario en admin (reemplaza con tu email)
-UPDATE users SET role = 'admin' WHERE email = '${adminEmail}';`
+DROP POLICY IF EXISTS "Admins can modify users" ON users;
+CREATE POLICY "Admins can modify users" ON users
+    FOR ALL USING (
+        EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+    );
+
+-- 4. Crear función trigger para usuarios nuevos
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.users (id, email, full_name, role)
+    VALUES (
+        new.id,
+        new.email,
+        COALESCE(new.raw_user_meta_data->>'full_name', ''),
+        'user'
+    )
+    ON CONFLICT (id) DO NOTHING;
+    RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- 5. Crear trigger
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+CREATE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 6. Insertar o actualizar tu usuario como admin
+INSERT INTO users (id, email, full_name, role)
+VALUES (
+    '${user?.id || 'TU_USER_ID'}',
+    '${adminEmail}',
+    '',
+    'admin'
+)
+ON CONFLICT (id)
+DO UPDATE SET role = 'admin';`
 
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text)
