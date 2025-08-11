@@ -59,6 +59,8 @@ export default function AdminPage() {
       setLoading(true)
       setError(null)
 
+      const supabase = createClient()
+
       // Fetch properties
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
