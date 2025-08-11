@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSupabase } from '../providers/SupabaseProvider'
-import QuickAdminSetup from './QuickAdminSetup'
+import QuickStart from './QuickStart'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { AlertCircle, User, Database } from 'lucide-react'
