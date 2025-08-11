@@ -296,14 +296,26 @@ export default function DevelopmentsPage() {
       {/* Content */}
       <div className="container mx-auto px-4 py-8">
         {error && (
-          <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <AlertCircle className="h-5 w-5 text-orange-500 mr-2" />
-              <p className="text-orange-700 text-sm">
-                Hubo un problema al conectar con la base de datos. Mostrando emprendimientos de ejemplo.
-              </p>
+          <>
+            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <AlertCircle className="h-5 w-5 text-orange-500 mr-2" />
+                  <p className="text-orange-700 text-sm">
+                    Hubo un problema al conectar con la base de datos. Mostrando emprendimientos de ejemplo.
+                  </p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })}
+                >
+                  Ver Solución
+                </Button>
+              </div>
             </div>
-          </div>
+            <SetupInstructions />
+          </>
         )}
 
         {developments.length === 0 ? (
@@ -482,7 +494,7 @@ export default function DevelopmentsPage() {
             ¿Tenés un proyecto inmobiliario?
           </h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            Si sos desarrollador o ten��s un proyecto inmobiliario, te ayudamos con la comercialización y marketing de tus unidades.
+            Si sos desarrollador o tenés un proyecto inmobiliario, te ayudamos con la comercialización y marketing de tus unidades.
           </p>
           <Button 
             variant="secondary"
