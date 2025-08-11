@@ -4,12 +4,13 @@ import { Development } from '@/lib/supabase/types'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { 
-  MapPin, 
-  Calendar, 
-  Building, 
-  DollarSign, 
-  Phone, 
+import SetupInstructions from '@/components/SetupInstructions'
+import {
+  MapPin,
+  Calendar,
+  Building,
+  DollarSign,
+  Phone,
   Mail,
   Clock,
   CheckCircle,
@@ -481,7 +482,7 @@ export default function DevelopmentsPage() {
             ¿Tenés un proyecto inmobiliario?
           </h2>
           <p className="text-blue-100 mb-6 max-w-2xl mx-auto">
-            Si sos desarrollador o tenés un proyecto inmobiliario, te ayudamos con la comercialización y marketing de tus unidades.
+            Si sos desarrollador o ten��s un proyecto inmobiliario, te ayudamos con la comercialización y marketing de tus unidades.
           </p>
           <Button 
             variant="secondary"
