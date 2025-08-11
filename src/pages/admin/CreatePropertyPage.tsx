@@ -58,8 +58,9 @@ export default function CreatePropertyPage() {
       navigate('/admin?success=property_created')
       
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'CreatePropertyPage.handleSubmit')
-      setError(`Error al crear la propiedad: ${errorLog.message}`)
+      setError(`Error al crear la propiedad: ${errorMessage}`)
       console.error('Error creating property:', err)
     } finally {
       setLoading(false)
