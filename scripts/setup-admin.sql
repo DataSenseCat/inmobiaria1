@@ -85,13 +85,13 @@ CREATE POLICY "Users can update own profile" ON users
     FOR UPDATE
     USING (auth.uid() = id);
 
--- Políticas para leads
+-- Políticas para leads (eliminar si existen para evitar errores)
 DROP POLICY IF EXISTS "Admins can view all leads" ON leads;
 CREATE POLICY "Admins can view all leads" ON leads
     FOR SELECT
     USING (
         EXISTS (
-            SELECT 1 FROM users 
+            SELECT 1 FROM users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
@@ -101,7 +101,7 @@ CREATE POLICY "Admins can modify leads" ON leads
     FOR ALL
     USING (
         EXISTS (
-            SELECT 1 FROM users 
+            SELECT 1 FROM users
             WHERE id = auth.uid() AND role = 'admin'
         )
     );
