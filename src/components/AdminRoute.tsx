@@ -94,6 +94,12 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
                 </Button>
                 <Button
                   variant="outline"
+                  onClick={() => navigate('/demo-admin')}
+                >
+                  Demo Admin
+                </Button>
+                <Button
+                  variant="outline"
                   onClick={() => navigate('/')}
                 >
                   Volver al Inicio
