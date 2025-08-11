@@ -21,12 +21,12 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     const checkAdminRole = async () => {
       try {
         const { data: profile, error } = await supabase
-          .from('profiles')
+          .from('users')
           .select('role')
-          .eq('user_id', user.id)
+          .eq('id', user.id)
           .single()
 
-        if (error || !profile || (profile.role !== 'admin' && profile.role !== 'agent')) {
+        if (error || !profile || profile.role !== 'admin') {
           setIsAdmin(false)
           navigate('/?error=access_denied')
           return

@@ -105,7 +105,7 @@ export default function PropertyCard({
   }
 
   const handleViewDetails = () => {
-    window.open(`/propiedades/${property.id}`, '_blank')
+    window.open(`/propiedad/${property.id}`, '_blank')
   }
 
   return (

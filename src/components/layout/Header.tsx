@@ -2,20 +2,43 @@ import { Link } from 'react-router-dom'
 import { Search, Phone, Mail, MapPin, ChevronDown, Menu, X, User, Heart, Shield } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSupabase } from '../../providers/SupabaseProvider'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [propertiesDropdownOpen, setPropertiesDropdownOpen] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
   const { user, supabase } = useSupabase()
 
   const signOut = async () => {
     await supabase.auth.signOut()
   }
 
-  // Mock profile data - in a real app, you'd fetch this from the database
-  const isAdmin = false // You'll need to implement profile fetching
+  // Check if user is admin
+  useEffect(() => {
+    if (!user) {
+      setIsAdmin(false)
+      return
+    }
+
+    const checkAdminRole = async () => {
+      try {
+        const { data: profile } = await supabase
+          .from('users')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+
+        setIsAdmin(profile?.role === 'admin')
+      } catch (error) {
+        console.error('Error checking user role:', error)
+        setIsAdmin(false)
+      }
+    }
+
+    checkAdminRole()
+  }, [user, supabase])
 
   return (
     <>
