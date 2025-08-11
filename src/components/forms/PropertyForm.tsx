@@ -20,15 +20,23 @@ const propertySchema = z.object({
   city: z.string().min(1, 'La ciudad es requerida'),
   type: z.enum(['casa', 'departamento', 'ph', 'lote', 'local']),
   operation: z.enum(['venta', 'alquiler', 'temporal']),
-  price_usd: z.number().positive().optional(),
-  price_ars: z.number().positive().optional(),
-  rooms: z.number().int().min(0).optional(),
-  bathrooms: z.number().int().min(0).optional(),
-  area_covered: z.number().positive().optional(),
-  area_total: z.number().positive().optional(),
+  price_usd: z.number().positive().optional().or(z.literal(undefined)),
+  price_ars: z.number().positive().optional().or(z.literal(undefined)),
+  rooms: z.number().int().min(0).optional().or(z.literal(undefined)),
+  bathrooms: z.number().int().min(0).optional().or(z.literal(undefined)),
+  area_covered: z.number().positive().optional().or(z.literal(undefined)),
+  area_total: z.number().positive().optional().or(z.literal(undefined)),
   featured: z.boolean(),
   active: z.boolean(),
-})
+}).transform((data) => ({
+  ...data,
+  price_usd: data.price_usd || undefined,
+  price_ars: data.price_ars || undefined,
+  rooms: data.rooms || undefined,
+  bathrooms: data.bathrooms || undefined,
+  area_covered: data.area_covered || undefined,
+  area_total: data.area_total || undefined,
+}))
 
 type PropertyFormData = z.infer<typeof propertySchema>
 
@@ -324,7 +332,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         id="rooms"
                         type="number"
                         min="0"
-                        {...register('rooms', { valueAsNumber: true })}
+                        {...register('rooms', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Número de habitaciones"
                       />
                     </div>
@@ -335,7 +346,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         id="bathrooms"
                         type="number"
                         min="0"
-                        {...register('bathrooms', { valueAsNumber: true })}
+                        {...register('bathrooms', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Número de baños"
                       />
                     </div>
@@ -351,7 +365,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                         type="number"
                         min="0"
                         step="0.1"
-                        {...register('area_covered', { valueAsNumber: true })}
+                        {...register('area_covered', {
+                          valueAsNumber: true,
+                          setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                        })}
                         placeholder="Metros cuadrados cubiertos"
                       />
                     </div>
@@ -364,7 +381,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="0.1"
-                      {...register('area_total', { valueAsNumber: true })}
+                      {...register('area_total', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Metros cuadrados totales"
                     />
                   </div>
@@ -390,7 +410,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="1"
-                      {...register('price_usd', { valueAsNumber: true })}
+                      {...register('price_usd', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Precio en dólares"
                     />
                   </div>
@@ -404,7 +427,10 @@ export default function PropertyForm({ property, onSubmit, onCancel, loading }: 
                       type="number"
                       min="0"
                       step="1"
-                      {...register('price_ars', { valueAsNumber: true })}
+                      {...register('price_ars', {
+                        valueAsNumber: true,
+                        setValueAs: (value) => value === '' || isNaN(Number(value)) ? undefined : Number(value)
+                      })}
                       placeholder="Precio en pesos"
                     />
                   </div>

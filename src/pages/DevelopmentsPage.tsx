@@ -71,7 +71,19 @@ export default function DevelopmentsPage() {
         message: errorMessage,
         stack: err instanceof Error ? err.stack : undefined
       })
-      setError(`Error al conectar con la base de datos: ${errorMessage}. Mostrando datos de ejemplo.`)
+
+      // Check if it's a table not found error - in that case, silently use sample data
+      if (err instanceof Error && (
+        err.message.includes('relation') ||
+        err.message.includes('does not exist') ||
+        err.message.includes('PGRST116')
+      )) {
+        console.log('Database tables not found, using sample developments data')
+        setError(null) // Don't show error for missing tables
+      } else {
+        setError(`Problema de conexión con la base de datos. Mostrando emprendimientos de ejemplo.`)
+      }
+
       setDevelopments(getSampleDevelopments())
     } finally {
       setLoading(false)
