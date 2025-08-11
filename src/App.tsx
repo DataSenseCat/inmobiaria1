@@ -42,6 +42,7 @@ function App() {
         <Route path="/configurar-admin" element={<ConfigAdminPage />} />
         <Route path="/configurar-db" element={<ConfigDbPage />} />
         <Route path="/debug-admin" element={<DebugAdminPage />} />
+        <Route path="/setup-admin" element={<SetupAdminPage />} />
         <Route path="/debug" element={<DebugPage />} />
         <Route path="/test-connection" element={<TestConnectionPage />} />
         <Route path="/debug-connection" element={<DebugConnectionPage />} />
