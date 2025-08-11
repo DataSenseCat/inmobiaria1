@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { AlertCircle, CheckCircle, User, RefreshCw, Copy } from 'lucide-react'
+import { AlertCircle, CheckCircle, User, Copy, ExternalLink } from 'lucide-react'
 
 export default function DemoAdminPage() {
   const [loading, setLoading] = useState(false)
@@ -13,191 +13,129 @@ export default function DemoAdminPage() {
   const [error, setError] = useState('')
   const navigate = useNavigate()
 
-  const [formData, setFormData] = useState({
-    email: 'demo@example.com',
-    password: 'demo123456',
-    fullName: 'Administrador Demo'
+  const [credentials, setCredentials] = useState({
+    email: 'test@test.com',
+    password: 'test123456'
   })
 
-  // Predefined demo accounts to try
-  const demoAccounts = [
-    { email: 'demo@example.com', password: 'demo123456' },
-    { email: 'test@test.com', password: 'test123456' },
-    { email: 'admin@test.com', password: 'admin123456' }
-  ]
+  // SQL script that the user needs to run
+  const sqlScript = `-- SCRIPT SIMPLE PARA CREAR ADMIN
+-- Ejecuta esto en Supabase SQL Editor
 
-  const generateRandomEmail = () => {
-    const randomString = Math.random().toString(36).substr(2, 9)
-    return `demo${randomString}@example.com`
-  }
+-- 1. Crear tabla users si no existe
+CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    phone TEXT,
+    role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'agent', 'user')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
 
-  const createDemoAdmin = async () => {
+-- 2. Crear políticas básicas para properties
+ALTER TABLE properties ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Admins can manage all properties" ON properties;
+CREATE POLICY "Admins can manage all properties" ON properties
+    FOR ALL USING (
+        EXISTS (SELECT 1 FROM users WHERE id = auth.uid() AND role = 'admin')
+    );
+
+-- 3. Hacer admin al usuario actual (ejecuta esto DESPUÉS de autenticarte)
+INSERT INTO users (id, email, role, full_name)
+SELECT 
+    auth.uid(),
+    auth.email(),
+    'admin',
+    'Admin Usuario'
+ON CONFLICT (id) 
+DO UPDATE SET 
+    role = 'admin',
+    updated_at = NOW();
+
+-- ¡LISTO! Recarga la página después de ejecutar esto.`
+
+  const createQuickAdmin = async () => {
     setLoading(true)
     setError('')
-    setMessage('')
-
-    // List of emails to try (current form data + predefined accounts + random)
-    const emailsToTry = [
-      formData.email,
-      ...demoAccounts.map(acc => acc.email),
-      generateRandomEmail()
-    ]
-
-    let successfulEmail = ''
-    let successfulPassword = formData.password
-
-    for (let i = 0; i < emailsToTry.length; i++) {
-      const currentEmail = emailsToTry[i]
-      
-      // Use the password from predefined accounts if available
-      const accountMatch = demoAccounts.find(acc => acc.email === currentEmail)
-      const currentPassword = accountMatch ? accountMatch.password : formData.password
-      
-      try {
-        setMessage(`Intentando crear usuario ${i + 1}/${emailsToTry.length}: ${currentEmail}`)
-        
-        // Try to create user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-          email: currentEmail,
-          password: currentPassword,
-          options: {
-            data: {
-              full_name: formData.fullName
-            }
-          }
-        })
-
-        if (authError) {
-          // If user already exists, try to sign in
-          if (authError.message.includes('already') || authError.message.includes('registered')) {
-            setMessage(`Usuario ${currentEmail} ya existe, iniciando sesión...`)
-            
-            const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
-              email: currentEmail,
-              password: currentPassword
-            })
-
-            if (signInError) {
-              // If sign in fails, try next email
-              if (i < emailsToTry.length - 1) {
-                setMessage(`Error al iniciar sesión con ${currentEmail}, probando siguiente...`)
-                continue
-              }
-              throw signInError
-            }
-            
-            successfulEmail = currentEmail
-            successfulPassword = currentPassword
-            break
-            
-          } else if (authError.message.includes('invalid') || authError.message.includes('not allowed')) {
-            // If email is invalid or not allowed, try next one
-            if (i < emailsToTry.length - 1) {
-              setMessage(`Email ${currentEmail} no permitido, probando siguiente...`)
-              continue
-            }
-            throw new Error(`Todos los emails fueron rechazados. Error: ${authError.message}`)
-          } else {
-            throw authError
-          }
-        } else {
-          // Success creating new user
-          successfulEmail = currentEmail
-          successfulPassword = currentPassword
-          setMessage(`Usuario creado exitosamente: ${currentEmail}`)
-          break
-        }
-      } catch (err: any) {
-        if (i < emailsToTry.length - 1) {
-          setMessage(`Error con ${currentEmail}: ${err.message}. Probando siguiente...`)
-          continue
-        }
-        // If this is the last email and it failed, throw the error
-        throw err
-      }
-    }
-
-    if (!successfulEmail) {
-      throw new Error('No se pudo crear ningún usuario demo')
-    }
-
-    // Update form data with successful credentials
-    setFormData(prev => ({ 
-      ...prev, 
-      email: successfulEmail,
-      password: successfulPassword
-    }))
+    setMessage('Iniciando sesión con credenciales de prueba...')
 
     try {
-      // Get current user
-      const { data: { user } } = await supabase.auth.getUser()
-      
-      if (!user) {
-        throw new Error('No se pudo obtener el usuario autenticado')
-      }
+      // Step 1: Try to sign in with test credentials
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      })
 
-      setMessage('Configurando permisos de administrador...')
+      if (signInError) {
+        if (signInError.message.includes('Invalid')) {
+          setMessage('Las credenciales no existen. Creando cuenta...')
+          
+          // Try to create the account
+          const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+            email: credentials.email,
+            password: credentials.password,
+            options: {
+              data: {
+                full_name: 'Admin Usuario'
+              }
+            }
+          })
 
-      // Create/update user profile as admin
-      const { error: profileError } = await supabase
-        .from('users')
-        .upsert({
-          id: user.id,
-          email: successfulEmail,
-          full_name: formData.fullName,
-          role: 'admin'
-        })
+          if (signUpError) {
+            throw new Error(`Error creando cuenta: ${signUpError.message}`)
+          }
 
-      if (profileError) {
-        console.warn('Error creating user profile:', profileError)
-        setMessage('Usuario creado, pero hubo un problema configurando permisos. Ejecuta el script SQL para completar la configuración.')
+          setMessage('Cuenta creada. Inicia sesión manualmente y ejecuta el script SQL.')
+        } else {
+          throw signInError
+        }
       } else {
-        setMessage('¡Administrador creado exitosamente! Redirigiendo al panel...')
-        
-        // Redirect to admin panel after delay
-        setTimeout(() => {
-          navigate('/admin')
-        }, 2000)
-        
-        return // Exit function here on success
+        setMessage('¡Autenticado exitosamente! Ahora ejecuta el script SQL para hacerte admin.')
       }
+
+      setMessage(prev => prev + '\n\nAhora necesitas ejecutar el script SQL en Supabase para obtener permisos de admin.')
 
     } catch (err: any) {
-      console.error('Error creating demo admin:', err)
-      setError(`Error: ${err.message || 'Error desconocido'}`)
+      console.error('Error:', err)
+      setError(`Error: ${err.message}`)
+      setMessage('Si tienes problemas, sigue las instrucciones manuales de abajo.')
     } finally {
       setLoading(false)
     }
   }
 
-  const copyCredentials = () => {
-    const text = `Email: ${formData.email}\nContraseña: ${formData.password}`
-    navigator.clipboard.writeText(text)
+  const goToAdminPanel = () => {
+    navigate('/admin')
   }
 
-  const tryPredefinedAccount = (account: typeof demoAccounts[0]) => {
-    setFormData(prev => ({
-      ...prev,
-      email: account.email,
-      password: account.password
-    }))
+  const goToLogin = () => {
+    navigate('/auth/sign-in')
+  }
+
+  const copyScript = () => {
+    navigator.clipboard.writeText(sqlScript)
+    setMessage('¡Script SQL copiado! Pégalo en Supabase SQL Editor.')
+  }
+
+  const copyCredentials = () => {
+    const text = `Email: ${credentials.email}\nContraseña: ${credentials.password}`
+    navigator.clipboard.writeText(text)
+    setMessage('¡Credenciales copiadas!')
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
+      <Card className="w-full max-w-4xl">
         <CardHeader>
           <CardTitle className="flex items-center space-x-2">
             <User className="h-5 w-5" />
-            <span>Demo Admin - Crear Administrador</span>
+            <span>Solución Rápida - Admin Demo</span>
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          <p className="text-sm text-gray-600">
-            Esta página crea un usuario administrador de demostración. Si un email falla, 
-            automáticamente probará con otros emails hasta encontrar uno que funcione.
-          </p>
-
+          
+          {/* Status Messages */}
           {error && (
             <div className="bg-red-50 border border-red-200 rounded p-3">
               <div className="flex items-center">
@@ -211,115 +149,113 @@ export default function DemoAdminPage() {
             <div className="bg-blue-50 border border-blue-200 rounded p-3">
               <div className="flex items-center">
                 <CheckCircle className="h-4 w-4 text-blue-500 mr-2" />
-                <p className="text-blue-700 text-sm">{message}</p>
+                <p className="text-blue-700 text-sm whitespace-pre-line">{message}</p>
               </div>
             </div>
           )}
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-3">
-              <h3 className="font-semibold">Configuración Actual</h3>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({...formData, email: e.target.value})}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="password">Contraseña</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({...formData, password: e.target.value})}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="fullName">Nombre Completo</Label>
-                <Input
-                  id="fullName"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="font-semibold">Cuentas Demo Predefinidas</h3>
-              <p className="text-xs text-gray-500">Haz clic para usar estas credenciales probadas:</p>
-              {demoAccounts.map((account, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  className="w-full text-left justify-start"
-                  onClick={() => tryPredefinedAccount(account)}
-                >
-                  <div className="text-xs">
-                    <div>{account.email}</div>
-                    <div className="text-gray-500">{account.password}</div>
+          {/* Quick Solution */}
+          <div className="bg-green-50 border border-green-200 rounded p-4">
+            <h3 className="font-bold text-green-800 mb-3">🎯 SOLUCIÓN RÁPIDA (3 pasos)</h3>
+            
+            <div className="space-y-4">
+              {/* Step 1 */}
+              <div className="flex items-start space-x-3">
+                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">1</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-green-800">Autenticarse</h4>
+                  <p className="text-green-700 text-sm mb-2">Usa estas credenciales de prueba:</p>
+                  <div className="bg-white p-2 rounded border font-mono text-sm">
+                    <div><strong>Email:</strong> {credentials.email}</div>
+                    <div><strong>Contraseña:</strong> {credentials.password}</div>
                   </div>
-                </Button>
-              ))}
+                  <div className="flex space-x-2 mt-2">
+                    <Button size="sm" onClick={createQuickAdmin} disabled={loading}>
+                      {loading ? 'Procesando...' : 'Auto-Login'}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={goToLogin}>
+                      Login Manual
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={copyCredentials}>
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copiar
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 2 */}
+              <div className="flex items-start space-x-3">
+                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">2</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-green-800">Ejecutar Script SQL</h4>
+                  <p className="text-green-700 text-sm mb-2">Copia y ejecuta este script en Supabase SQL Editor:</p>
+                  <div className="bg-gray-900 text-green-400 p-3 rounded text-xs overflow-auto max-h-40 font-mono">
+                    {sqlScript}
+                  </div>
+                  <div className="flex space-x-2 mt-2">
+                    <Button size="sm" onClick={copyScript}>
+                      <Copy className="h-3 w-3 mr-1" />
+                      Copiar Script
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => window.open('https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql', '_blank')}
+                    >
+                      <ExternalLink className="h-3 w-3 mr-1" />
+                      Abrir SQL Editor
+                    </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Step 3 */}
+              <div className="flex items-start space-x-3">
+                <div className="bg-green-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-sm font-bold">3</div>
+                <div className="flex-1">
+                  <h4 className="font-semibold text-green-800">Probar Panel Admin</h4>
+                  <p className="text-green-700 text-sm mb-2">Después de ejecutar el script, accede al panel:</p>
+                  <Button onClick={goToAdminPanel}>
+                    Ir al Panel Admin
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
 
-          <div className="space-y-3">
-            <Button 
-              onClick={createDemoAdmin} 
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                  Creando Admin Demo...
-                </>
-              ) : (
-                'Crear Admin Demo'
-              )}
+          {/* Manual Instructions */}
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-4">
+            <h3 className="font-bold text-yellow-800 mb-3">📋 INSTRUCCIONES MANUALES (si falla lo anterior)</h3>
+            <ol className="list-decimal list-inside space-y-2 text-yellow-700 text-sm">
+              <li>Ve a <a href="/auth/sign-in" className="underline">página de login</a></li>
+              <li>Crea una cuenta nueva o usa: {credentials.email} / {credentials.password}</li>
+              <li>Ve a <a href="https://xtcdvnzcryshjwwggfrk.supabase.co/project/default/sql" target="_blank" className="underline">Supabase SQL Editor</a></li>
+              <li>Ejecuta el script SQL (usa el botón "Copiar Script")</li>
+              <li>Recarga <a href="/admin" className="underline">el panel admin</a></li>
+            </ol>
+          </div>
+
+          {/* Quick Actions */}
+          <div className="flex flex-wrap gap-2 pt-4 border-t">
+            <Button variant="outline" onClick={() => navigate('/')}>
+              🏠 Inicio
             </Button>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/auth/sign-in')}
-              >
-                Login Normal
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={copyCredentials}
-              >
-                <Copy className="h-4 w-4 mr-2" />
-                Copiar Credenciales
-              </Button>
-              
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/')}
-              >
-                Volver al Inicio
-              </Button>
-            </div>
+            <Button variant="outline" onClick={() => navigate('/auth/sign-in')}>
+              🔑 Login
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/admin')}>
+              ⚡ Panel Admin
+            </Button>
+            <Button variant="outline" onClick={() => window.location.reload()}>
+              🔄 Recargar
+            </Button>
           </div>
 
-          <div className="border-t pt-4">
-            <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-              <h4 className="font-semibold text-yellow-800 mb-2">Información Importante:</h4>
-              <ul className="text-xs text-yellow-700 space-y-1">
-                <li>• Si un email es rechazado, se probará automáticamente con otros</li>
-                <li>• Las credenciales exitosas se mostrarán para uso futuro</li>
-                <li>• Esta funcionalidad es solo para demostración y desarrollo</li>
-                <li>• En producción, los administradores deben crearse de forma segura</li>
-              </ul>
-            </div>
+          <div className="text-xs text-gray-500 bg-gray-100 p-3 rounded">
+            <strong>IMPORTANTE:</strong> Esta es una solución simplificada para demostración. 
+            El problema principal es que Supabase está rechazando emails o hay restricciones de dominio. 
+            Esta solución omite la complejidad innecesaria y te da acceso directo al panel admin.
           </div>
         </CardContent>
       </Card>
