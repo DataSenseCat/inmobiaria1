@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { supabase, testConnection } from '@/lib/supabase/client'
 import PropertyCard from './PropertyCard'
 import { Property } from '@/lib/supabase/types'
