@@ -158,7 +158,7 @@ export default function Header() {
 
               {/* Admin Setup Link */}
               {user && !isAdmin && (
-                <Link to="/configurar-admin" className="flex items-center space-x-1 text-orange-600 hover:text-orange-800 font-medium transition-colors">
+                <Link to="/setup-admin" className="flex items-center space-x-1 text-orange-600 hover:text-orange-800 font-medium transition-colors">
                   <Shield className="h-4 w-4" />
                   <span>Configurar Admin</span>
                 </Link>
