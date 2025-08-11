@@ -135,35 +135,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
             </CardContent>
           </Card>
 
-          <AdminDiagnosis />
-
-          <div className="max-w-4xl mx-auto mt-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/setup-admin')}
-                  >
-                    <Database className="h-4 w-4 mr-2" />
-                    Configuración Manual
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/')}
-                  >
-                    Volver al Inicio
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => window.location.reload()}
-                  >
-                    Recargar Página
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <QuickAdminSetup />
         </div>
       </div>
     )
