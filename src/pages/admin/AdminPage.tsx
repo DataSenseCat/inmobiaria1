@@ -286,6 +286,11 @@ export default function AdminPage() {
         </div>
       )}
 
+      {/* Admin Diagnosis */}
+      <div className="container mx-auto px-4 py-4">
+        <AdminDiagnosis />
+      </div>
+
       <div className="container mx-auto px-4 py-8">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
