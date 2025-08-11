@@ -60,8 +60,9 @@ export default function EditPropertyPage() {
 
       setProperty(property)
     } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Error desconocido'
       const errorLog = logError(err, 'EditPropertyPage.fetchProperty')
-      setError(`Error al cargar la propiedad: ${errorLog.message}`)
+      setError(`Error al cargar la propiedad: ${errorMessage}`)
       console.error('Error fetching property:', err)
     } finally {
       setLoading(false)
