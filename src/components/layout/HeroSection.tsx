@@ -11,10 +11,11 @@ export default function HeroSection() {
       
       <div className="relative z-10 flex items-center justify-center h-full"
            style={{
-             backgroundImage: 'url(https://cdn.builder.io/api/v1/image/assets%2Fa29a65487a2246d2b8205b8a9cb7b6f7%2Fe62524b860a146119d88717fab28ad54)',
+             backgroundImage: 'url(https://cdn.builder.io/api/v1/image/assets%2Fa29a65487a2246d2b8205b8a9cb7b6f7%2F2bbf911c5a3649afa69d66374abf29de)',
              backgroundRepeat: 'no-repeat',
              backgroundPosition: 'center',
-             backgroundSize: 'cover'
+             backgroundSize: 'cover',
+             backgroundColor: 'rgba(18, 15, 15, 1)'
            }}>
         <div className="container mx-auto px-4 text-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-8">
