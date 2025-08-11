@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { Search, Phone, Mail, MapPin, ChevronDown, Menu, X, User, Heart, Shield } from 'lucide-react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSupabase } from '../../providers/SupabaseProvider'
 
 export default function Header() {
