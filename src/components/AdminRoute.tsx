@@ -70,9 +70,103 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     )
   }
 
-  // Don't render children if not authenticated or not admin
-  if (!user || !isAdmin) {
-    return null
+  // Show authentication required if not logged in
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-2xl mx-auto border-red-200 bg-red-50">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-red-800">
+                <User className="h-5 w-5" />
+                <span>Acceso Restringido</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-red-700">
+                Necesitas estar autenticado para acceder a esta página.
+              </p>
+              <div className="flex space-x-2">
+                <Button
+                  onClick={() => navigate(`/auth/sign-in?redirectedFrom=${encodeURIComponent(location.pathname)}`)}
+                >
+                  Iniciar Sesión
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/')}
+                >
+                  Volver al Inicio
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
+  // Show admin diagnosis if user is not admin or there are errors
+  if (!isAdmin || error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-4xl mx-auto border-orange-200 bg-orange-50 mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-orange-800">
+                <AlertCircle className="h-5 w-5" />
+                <span>Permisos de Administrador Requeridos</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-orange-700">
+                Para acceder a <strong>{location.pathname}</strong> necesitas permisos de administrador.
+              </p>
+              {error && (
+                <div className="bg-red-50 border border-red-200 rounded p-3">
+                  <p className="text-red-700 text-sm">
+                    <strong>Error:</strong> {error}
+                  </p>
+                </div>
+              )}
+              <p className="text-orange-600 text-sm">
+                Usa el diagnóstico a continuación para solucionar el problema:
+              </p>
+            </CardContent>
+          </Card>
+
+          <AdminDiagnosis />
+
+          <div className="max-w-4xl mx-auto mt-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/setup-admin')}
+                  >
+                    <Database className="h-4 w-4 mr-2" />
+                    Configuración Manual
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => navigate('/')}
+                  >
+                    Volver al Inicio
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => window.location.reload()}
+                  >
+                    Recargar Página
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   return <>{children}</>
