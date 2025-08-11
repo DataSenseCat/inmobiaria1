@@ -31,6 +31,7 @@ import DebugConnectionPage from './pages/DebugConnectionPage'
 
 // Builder.io page
 import BuilderPage from './pages/BuilderPage'
+import AuthDebugPage from './pages/AuthDebugPage'
 
 function App() {
   return (
