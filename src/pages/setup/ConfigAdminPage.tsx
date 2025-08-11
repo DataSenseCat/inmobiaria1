@@ -558,10 +558,67 @@ export default function ConfigAdminPage() {
                     disabled={saving}
                   >
                     <Database className="w-4 h-4 mr-2" />
-                    Inicializar BD
+                    Crear Tablas
                   </Button>
                 )}
               </div>
+
+              {!dbStatus.tablesExist && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h4 className="font-medium text-blue-900 mb-2">Configuración requerida</h4>
+                  <p className="text-sm text-blue-800 mb-3">
+                    Para usar todas las funciones de administración, necesitas ejecutar el script de configuración:
+                  </p>
+                  <ol className="text-sm text-blue-800 space-y-1 mb-3">
+                    <li>1. Ve a <strong>Supabase Dashboard → SQL Editor</strong></li>
+                    <li>2. Copia y ejecuta el archivo <code>scripts/admin-config-setup.sql</code></li>
+                    <li>3. Haz clic en "Verificar Estado" para confirmar</li>
+                  </ol>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => navigator.clipboard.writeText(`
+-- Ejecutar en Supabase SQL Editor
+${`CREATE TABLE IF NOT EXISTS users (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT UNIQUE NOT NULL,
+    full_name TEXT,
+    phone TEXT,
+    role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'agent', 'user')),
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS site_config (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    siteName TEXT DEFAULT 'Inmobiliaria Catamarca',
+    siteDescription TEXT DEFAULT 'Tu inmobiliaria de confianza en Catamarca',
+    contactEmail TEXT DEFAULT 'contacto@inmobiliariacatamarca.com',
+    contactPhone TEXT DEFAULT '+54 383 456-7890',
+    address TEXT DEFAULT 'San Fernando del Valle de Catamarca, Argentina',
+    whatsappNumber TEXT DEFAULT '+54 9 383 456-7890',
+    currency TEXT DEFAULT 'USD' CHECK (currency IN ('USD', 'ARS')),
+    language TEXT DEFAULT 'es' CHECK (language IN ('es', 'en')),
+    theme TEXT DEFAULT 'light' CHECK (theme IN ('light', 'dark', 'auto')),
+    emailNotifications BOOLEAN DEFAULT true,
+    smsNotifications BOOLEAN DEFAULT false,
+    autoBackup BOOLEAN DEFAULT true,
+    maintenanceMode BOOLEAN DEFAULT false,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE users ENABLE ROW LEVEL SECURITY;
+ALTER TABLE site_config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Anyone can view site config" ON site_config FOR SELECT USING (true);`}
+                    `)}
+                    className="text-xs"
+                  >
+                    Copiar Script SQL
+                  </Button>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
