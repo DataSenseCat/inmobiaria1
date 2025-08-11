@@ -1,11 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useSupabase } from '../providers/SupabaseProvider'
+import AdminDiagnosis from './AdminDiagnosis'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Button } from './ui/button'
+import { AlertCircle, User, Database } from 'lucide-react'
 
 export function AdminRoute({ children }: { children: React.ReactNode }) {
   const { user, loading, supabase } = useSupabase()
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
   const [checkingRole, setCheckingRole] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -13,7 +18,7 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
     if (loading) return
 
     if (!user) {
-      navigate(`/auth/sign-in?redirectedFrom=${encodeURIComponent(location.pathname)}`)
+      setCheckingRole(false)
       return
     }
 
@@ -26,22 +31,25 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
           .eq('id', user.id)
           .single()
 
-        if (error || !profile || profile.role !== 'admin') {
+        if (error) {
+          console.error('Error checking user role:', error)
+          setError(`Error al verificar permisos: ${error.message}`)
           setIsAdmin(false)
-          // Redirigir a setup si hay error de usuario no encontrado
-          if (error?.code === 'PGRST116') {
-            navigate('/setup-admin?reason=user_not_found')
-          } else {
-            navigate('/setup-admin?reason=not_admin')
-          }
+          return
+        }
+
+        if (!profile || profile.role !== 'admin') {
+          setError(profile ? 'No tienes permisos de administrador' : 'Usuario no encontrado en la base de datos')
+          setIsAdmin(false)
           return
         }
 
         setIsAdmin(true)
+        setError(null)
       } catch (error) {
         console.error('Error checking user role:', error)
+        setError(error instanceof Error ? error.message : 'Error desconocido')
         setIsAdmin(false)
-        navigate('/setup-admin?reason=error')
       } finally {
         setCheckingRole(false)
       }
