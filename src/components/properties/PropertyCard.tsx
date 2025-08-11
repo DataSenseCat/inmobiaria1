@@ -138,7 +138,7 @@ export default function PropertyCard({
             
             {/* Image Indicators */}
             <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1">
-              {images.map((_, index) => (
+              {images.map((_: any, index: number) => (
                 <button
                   key={index}
                   onClick={() => setCurrentImageIndex(index)}
